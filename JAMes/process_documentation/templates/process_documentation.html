@@ -1,0 +1,49 @@
+{% extends 'users/navbar.html' %}  <!-- Erbt Funktionalität von "users/navbar.html" -->
+
+{% block content %}  <!-- Beginnt einen Inhaltsblock, der im Elterntemplate definiert ist -->
+
+<div class="row">  <!-- Bootstrap Row-Element -->
+  <div class="col-md-12">  <!-- Bootstrap-Spalte, die die volle Breite (12 von 12) einnimmt -->
+    <div class="content-section">  <!-- Benutzerdefinierter Inhaltsbereich -->
+      <h3>Model Development Steps</h3>  <!-- Überschrift -->
+      <ol>  <!-- Geordnete Liste -->
+        <li>  <!-- Listenelement -->
+          <strong>Upload Data:</strong> Click on "Develop New Model" and navigate to the "Personal Upload" page to upload a CSV file containing company data based on a template that can be downloaded on the same page.
+        </li>
+        <li>
+          <strong>Select User Data:</strong> Choose which uploaded files to look at based on the user.
+        </li>
+        <li>
+          <strong>Select Model Data:</strong> Choose which uploaded file to use as the basis for the model.
+        </li>
+        <li>
+          <strong>Data Overview:</strong> Examine an overview of the data and clean it if necessary.
+        </li>
+        <li>
+          <strong>Select Relevant Financial Features:</strong> Select at least three relative financial features to include in the prediction.
+        </li>
+        <li>
+          <strong>Data Segmentation:</strong> Inspect the resulting dataset that contains relative values and choose whether the dataset is to be separated into different segments based on the total assets of the companies included. If so, proceed with the separation.
+        </li>
+        <li>
+          <strong>Select Model Settings:</strong> Choose whether Bayesian optimization should be used in model training or which oversampling technique is used, and select the train-test-validation split.
+        </li>
+        <li>
+          <strong>Train Model:</strong> Inspect the resulting data and start the model training (when Bayesian optimization was not selected) with choices for adjusting the values for the number of estimators, learning rate, and maximum depth.
+        </li>
+        <li>
+          <strong>Assess Model:</strong> Assess the model based on explainability features from XGBoost and SHAP values, as well as evaluation metrics for machine learning models, and export the data if desired.
+        </li>
+        <li>
+          <strong>Assess Predictions:</strong> Assess the predictions for individual companies, the companies that are actually bankrupt and their prediction results, the actual status of companies that have been predicted as bankrupt, and companies that were predicted as bankrupt correctly.
+        </li>
+      </ol>  <!-- Schließt die geordnete Liste ab -->
+      <div class="text-center mt-5">  <!-- Ein Container mit zentriertem Text und einem oberen Rand von 5 Einheiten -->
+        <a href="{% url 'personal_upload' %}" class="btn btn-primary">Develop New Model</a>  <!-- Ein Button, der den Benutzer zur "personal_upload" Seite weiterleitet -->
+      </div>  <!-- Schließt den Container ab -->
+      
+    </div>  <!-- Schließt den "content-section" Container ab -->
+  </div>  <!-- Schließt die Bootstrap-Spalte ab -->
+</div>  <!-- Schließt die Bootstrap-Reihe ab -->
+
+{% endblock %}  <!-- Schließt den Inhaltsblock ab -->

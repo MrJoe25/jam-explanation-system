@@ -1,0 +1,74 @@
+{% extends "users/navbar.html" %}  <!-- Erbt von einem vordefinierten Template namens "navbar.html". -->
+{% load crispy_forms_tags %}  <!-- Lädt die crispy_forms_tags Bibliothek, um Formulare ansprechender zu gestalten. -->
+{% block content %}  <!-- Beginnt den "content" Block, der im erweiterten Template definiert ist. -->
+
+<html lang="en">  <!-- Definiert die Sprache der HTML-Seite als Englisch. -->
+<div class="progress">  <!-- Beginnt einen Div-Container für einen Fortschrittsbalken. -->
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>  <!-- Definiert den Fortschrittsbalken mit verschiedenen Attributen und CSS-Klassen. -->
+</div>  <!-- Schließt den Div-Container für den Fortschrittsbalken. -->
+
+<div class="content-section">  <!-- Beginnt einen Div-Container für den Inhaltsbereich der Seite. -->
+    <div class="media">  <!-- Beginnt einen Div-Container für media-Elemente. -->
+        <div class="media-body">  <!-- Beginnt einen Div-Container für den Hauptteil des Media-Elements. -->
+            <h2 class="account-heading">Superuser: {{ user.username }}</h2>  <!-- Zeigt den Benutzernamen des Superusers an. -->
+            <form method="post" enctype="multipart/form-data">  <!-- Beginnt ein Formular für den POST-Request mit der Möglichkeit, Dateien hochzuladen. -->
+                {% csrf_token %}  <!-- Fügt ein CSRF-Token für Sicherheitszwecke hinzu. -->
+                <div class="form-group">  <!-- Beginnt einen Div-Container für eine Formulargruppe. -->
+                    <label>Upload a file</label>  <!-- Beschriftung für das Dateiupload-Feld. -->
+                    <input type="file" name="file" class="form-control-file">  <!-- Dateiupload-Feld. -->
+                    <p class="text-muted">ONLY ACCEPTS CSV files</p>  <!-- Hinweis, dass nur CSV-Dateien akzeptiert werden. -->
+                </div>  <!-- Schließt den Div-Container für die Formulargruppe. -->
+                <div class="form-group">  <!-- Beginnt einen weiteren Div-Container für eine Formulargruppe. -->
+                    <p class="font-weight-bold">Order of the CSV should be:</p>  <!-- Textanweisung für die Reihenfolge der CSV-Daten. -->
+                    <ol>  <!-- Beginnt eine geordnete Liste. -->
+                        <!-- Listeneinträge, die die erforderliche Reihenfolge und den Datentyp der CSV-Spalten beschreiben. -->
+                        <li>Company_ID (Integer) e.g. 8350117034</li>
+                        <li>Jahr (Integer) e.g. 2021</li>
+                        <li>Insolvenz (Integer) e.g. 0</li>
+                        <li>Anlagevermoegen (Float) e.g. 13727000000.0</li>
+                        <li>Umlaufvermoegen (Float) e.g. 114670000000.0</li>
+                        <li>Bilanzsumme (Float) e.g. 128397000000.0</li>
+                        <li>Eigenkapital (Float) e.g. 6788000000.0</li>
+                        <li>kurzfristigeVerbindlichkeiten (Float) e.g. 91153000000.0</li>
+                        <li>JahresueberschussFehlbetrag (Float) e.g. -4106000000.0</li>
+                    </ol>  <!-- Schließt die geordnete Liste. -->
+                </div>  <!-- Schließt den Div-Container für die Formulargruppe. -->
+                <div class="form-group col-md-6">  <!-- Beginnt einen Div-Container für eine Formulargruppe und legt ihre Breite auf 6 Spalten fest. -->
+                    <div class="alert alert-warning" role="alert">  <!-- Beginnt einen Div-Container für eine Warnmeldung. -->
+                        Please provide at least two consecutive years per company.  <!-- Inhalt der Warnmeldung. -->
+                    </div>  <!-- Schließt den Div-Container für die Warnmeldung. -->
+                    <p class="text-muted">Insolvenz = 0 --> keine Insolvenz</p>  <!-- Erklärung für den Wert "Insolvenz = 0". -->
+                    <p class="text-muted">Insolvenz = 1 --> Insolvenz</p>  <!-- Erklärung für den Wert "Insolvenz = 1". -->
+                    <button id="data_field_info_button" class="btn btn-sm btn-outline-info btn-block">Info</button>  <!-- Info-Button mit der ID "data_field_info_button". -->
+                </div>  <!-- Schließt den Div-Container für die erste Formulargruppe. -->
+                
+                <div class="form-group col-md-6">  <!-- Beginnt einen weiteren Div-Container für eine Formulargruppe und legt ihre Breite auf 6 Spalten fest. -->
+                    <p class="font-weight-bold">Please download the template and fill it out:</p>  <!-- Anweisung zum Herunterladen und Ausfüllen der Vorlage. -->
+                    <a href='\media\Insolvenzen_Django_Template.csv' class="btn btn-secondary" download='Insolvenzen_Django_Template.csv'> Download Template File</a>  <!-- Download-Link für die CSV-Vorlage. -->
+                </div>  <!-- Schließt den Div-Container für die zweite Formulargruppe. -->
+                
+                <div class="form-group col-md-6">  <!-- Beginnt einen weiteren Div-Container für eine Formulargruppe und legt ihre Breite auf 6 Spalten fest. -->
+                    <p class="font-weight-bold">Please enter the name of the user uploading the data:</p>  <!-- Anweisung zum Eingeben des Benutzernamens. -->
+                    <input type="text" class="form-control border border-primary rounded-pill" name="user" placeholder="Username" required class="form-control"/>  <!-- Texteingabefeld für den Benutzernamen. -->
+                </div>  <!-- Schließt den Div-Container für die dritte Formulargruppe. -->
+                
+                <div class="form-group col-md-6">  <!-- Beginnt einen weiteren Div-Container für eine Formulargruppe und legt ihre Breite auf 6 Spalten fest. -->
+                    <p class="font-weight-bold">Please
+                        upload the completed file:</p>  <!-- Anweisung zum Hochladen der ausgefüllten Datei. -->
+                    <button type="submit" class="btn btn-primary">Upload</button>  <!-- Upload-Button. -->
+                    <p>You will be automatically forwarded to the next page once the file has been successfully uploaded</p>  <!-- Anweisung, dass der Benutzer nach erfolgreichem Hochladen weitergeleitet wird. -->
+                </div>  <!-- Schließt den Div-Container für die vierte Formulargruppe. -->
+                
+                </form>  <!-- Schließt das Formular. -->
+                </div>  <!-- Schließt den Div-Container für den Hauptteil des Media-Elements. -->
+                </div>  <!-- Schließt den Div-Container für media-Elemente. -->
+                </div>  <!-- Schließt den Div-Container für den Inhaltsbereich der Seite. -->                
+                <script>  // Beginn des JavaScript-Blocks innerhalb des HTML-Dokuments
+                    document.getElementById("data_field_info_button").addEventListener("click", function(event) {  // Anhängen eines "click"-EventListeners an das HTML-Element mit der ID "data_field_info_button"
+                        event.preventDefault();  // Verhindert das Standardverhalten des Klick-Events (z.B. Neuladen der Seite)
+                        const infoMessage = "The Company_ID field is an integer that identifies each company in the dataset.\n\nThe Jahr field is an integer that indicates the year of the financial data.\n\nThe Insolvenz field is an integer that indicates whether a company has filed for bankruptcy. A value of 0 indicates no bankruptcy, while a value of 1 indicates bankruptcy.\n\nThe Anlagevermoegen field is a float that represents a company's fixed assets.\n\nThe Umlaufvermoegen field is a float that represents a company's current assets.\n\nThe Bilanzsumme field is a float that represents a company's total assets.\n\nThe Eigenkapital field is a float that represents a company's equity.\n\nThe kurzfristigeVerbindlichkeiten field is a float that represents a company's short-term liabilities.\n\nThe JahresueberschussFehlbetrag field is a float that represents a company's net income or loss for the year.";  // Speichern der Nachricht in einer Konstanten
+                        alert(infoMessage);  // Zeigen eines Alert-Dialogs mit der gespeicherten Nachricht
+                    });                
+                    </script>
+                    </html>
+                    {% endblock %}

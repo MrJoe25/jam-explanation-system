@@ -1,0 +1,73 @@
+# Installationsanleitung für das Django-Projekt "JAMes" im Rahmen des Projektstudiums
+
+## Voraussetzungen
+- Python 3.x sollte installiert sein (>3.7 und <3.11)
+- pip (Python-Paketmanager) sollte installiert sein
+
+## Schritte
+
+### 1. Projekt-Verzeichnis erstellen
+Öffnen Sie ein Terminal und navigieren Sie zu dem Ort, an dem Sie das Projekt speichern möchten.
+```
+mkdir JAMes
+cd JAMes
+```
+
+### 2. Virtuelle Umgebung erstellen
+```
+pip install virtualenv
+virtualenv venv
+```
+
+### 3. Virtuelle Umgebung aktivieren
+- **Windows**
+  ```
+  .\venv\Scripts\activate
+  ```
+- **Linux/Mac**
+  ```
+  source venv/bin/activate
+  ```
+
+### 4. Projekt verwenden
+- **Option 1: Klonen Sie das Projekt-Repository in das aktuelle Verzeichnis.**
+  ```
+  git clone https://gitlab.gwdg.de/ai-insolencyforecasting-dashboard/projektstudium/jam-explanation-system.git
+  ```
+- **Option 2: Wenn Sie sich im selben Ordner wie `installation.txt` befinden, ist das Projektverzeichnis bereits vorhanden und kann direkt verwendet werden.**
+
+### 5. Abhängigkeiten installieren
+Navigieren Sie in das Projektverzeichnis (das Verzeichnis, das beim Klonen erstellt wurde oder bereits vorhanden ist) und dann in den Unterordner 'JAMes'. Installieren Sie die erforderlichen Pakete aus der `requirements.txt` Datei.
+```
+cd JAMes
+pip install -r requirements.txt
+```
+
+### 6. Datenbank migrieren
+```
+python manage.py migrate
+```
+
+### 7. Superuser erstellen
+```
+python manage.py createsuperuser
+```
+
+### 8. Projekt starten
+```
+python manage.py runserver
+```
+
+Sie sollten jetzt in der Lage sein, das Projekt im Browser unter `http://127.0.0.1:8000/` zu sehen.
+
+### 9. Datensatz verwenden
+Navigieren Sie in den Ordner 'Data'. Dort finden Sie die Datei 'Insolvenzen_Django.csv'.
+Diese können Sie als Datensatz zum Upload in der Applikation nutzen.
+Ein Template zum Befüllen von eigenen Unternehmensdaten finden sie ebenfalls in dem Ordner.
+Hinweise wie das Template auszufüllen ist, finden Sie auf der Upload-Seite der Applikation.
+
+Hinweis: Bei Nutzung des Datensatzes 'Insolvenzen_Django.csv', kann es bei PC's mit geringem Arbeitsspeicher zu einem Memory-Error kommen.
+Wir haben aus diesem Grund einen kleineren Datensatz "Small_Artificial_Dataset' erstellt, der ebenfalls zur Prognose verwendet werden kann.
+Dieser Datensatz wurde mithilfe von Generative AI erstellt und enthält 10% Insolvenzen. Er dient lediglich dazu die Funktionsweise der Applikation zu überprüfen.
+
+## Ende der Installationsanleitung

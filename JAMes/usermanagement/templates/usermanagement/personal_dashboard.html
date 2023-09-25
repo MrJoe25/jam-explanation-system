@@ -1,0 +1,59 @@
+{% extends "users/navbar.html" %}  <!-- Erweitert das Navbar-Template "users/navbar.html". -->
+{% block content %}  <!-- Beginnt einen Block namens "content", der im Navbar-Template definiert sein sollte. Dieser Block wird durch den folgenden HTML-Code ersetzt. -->
+
+<!DOCTYPE html>  <!-- Definiert den Dokumenttyp als HTML. -->
+<html>  <!-- Beginnt das HTML-Dokument. -->
+
+<div class="container">  <!-- Beginnt einen Div-Container mit der Klasse "container" für die Ausrichtung und das Styling des Inhalts. -->
+    <h2 class="text-center">Datasets used by user:</h2>  <!-- Fügt eine zentrierte Überschrift hinzu. -->
+
+    <table class="table table-bordered table-striped">  <!-- Erstellt eine Tabelle mit verschiedenen Bootstrap-Klassen für Styling. -->
+        <thead class="thead-dark">  <!-- Beginnt den Tabellenkopf und setzt die Klasse für ein dunkles Design. -->
+            <tr>  <!-- Beginnt eine Tabellenzeile. -->
+                <th>Superuser</th>  <!-- Tabellenkopf für Superuser. -->
+                <th>User</th>  <!-- Tabellenkopf für User. -->
+                <th>Uploaded at</th>  <!-- Tabellenkopf für Upload-Zeit. -->
+                <th>File</th>  <!-- Tabellenkopf für Datei. -->
+            </tr>  <!-- Beendet die Tabellenzeile. -->
+        </thead>  <!-- Beendet den Tabellenkopf. -->
+
+        <tbody>  <!-- Beginnt den Tabellenkörper. -->
+    {% for csvfile in id %}  <!-- Startet eine For-Schleife, die durch alle CSV-Dateien im Kontext-Objekt "id" geht. -->
+            <tr>  <!-- Beginnt eine Tabellenzeile. -->
+                <td>{{csvfile.superuser}}</td>  <!-- Zeigt den Superuser für die aktuelle CSV-Datei an. -->
+                <td>{{csvfile.user}}</td>  <!-- Zeigt den Benutzer für die aktuelle CSV-Datei an. -->
+                <td>{{csvfile.uploaded_at}}</td>  <!-- Zeigt das Upload-Datum für die aktuelle CSV-Datei an. -->
+                <td><a href="{% url 'results_csv'%}?file={{csvfile.file}}&current_user={{csvfile.user}}" class="btn btn-outline-primary">{{csvfile.file}}</a></td>  <!-- Erstellt einen Link, der zur Seite "results_csv" führt und übergibt Parameter wie den Dateinamen und den aktuellen Benutzer. -->
+            </tr>  <!-- Beendet die Tabellenzeile. -->
+    {% endfor %}  <!-- Beendet die For-Schleife. -->
+        </tbody>  <!-- Beendet den Tabellenkörper. -->
+    </table>  <!-- Beendet die Tabelle. -->
+</div>
+<br>  <br />  <!-- Zwei Zeilenumbrüche für Abstand. -->
+
+<div class="container">  <!-- Beginnt einen Div-Container mit der Klasse "container" für die Ausrichtung und das Styling des Inhalts. -->
+    <h2 class="text-center">AI-Models used by user:</h2>  <!-- Fügt eine zentrierte Überschrift hinzu. -->
+
+    <table class="table table-bordered table-striped">  <!-- Erstellt eine Tabelle mit verschiedenen Bootstrap-Klassen für Styling. -->
+        <thead class="thead-dark">  <!-- Beginnt den Tabellenkopf und setzt die Klasse für ein dunkles Design. -->
+            <tr>  <!-- Beginnt eine Tabellenzeile. -->
+                <th>Superuser</th>  <!-- Tabellenkopf für Superuser. -->
+                <th>User</th>  <!-- Tabellenkopf für User. -->
+                <th>Uploaded at</th>  <!-- Tabellenkopf für Upload-Zeit. -->
+                <th>File</th>  <!-- Tabellenkopf für Datei. -->
+            </tr>  <!-- Beendet die Tabellenzeile. -->
+        </thead>  <!-- Beendet den Tabellenkopf. -->
+
+        <tbody>  <!-- Beginnt den Tabellenkörper. -->
+    {% for model in models %}  <!-- Startet eine For-Schleife, die durch alle Modelle im Kontext-Objekt "models" geht. -->
+            <tr>  <!-- Beginnt eine Tabellenzeile. -->
+                <td>{{model.superuser}}</td>  <!-- Zeigt den Superuser für das aktuelle Modell an. -->
+                <td>{{model.user}}</td>  <!-- Zeigt den Benutzer für das aktuelle Modell an. -->
+                <td>{{model.uploaded_at}}</td>  <!-- Zeigt das Upload-Datum für das aktuelle Modell an. -->
+                <td><a href="{% url 'xgexplain'%}?file={{model.file_name}}&current_user={{model.user}}&number_of_groups={{model.number_of_groups}}&ai_method={{model.ai_method}}" class="btn btn-outline-primary">{{model.model_file}}</a></td>  <!-- Erstellt einen Link, der zur Seite "xgexplain" führt und übergibt Parameter wie den Dateinamen, den aktuellen Benutzer, die Anzahl der Gruppen und die KI-Methode. -->
+            </tr>  <!-- Beendet die Tabellenzeile. -->
+    {% endfor %}  <!-- Beendet die For-Schleife. -->
+        </tbody>  <!-- Beendet den Tabellenkörper. -->
+    </table>  <!-- Beendet die Tabelle. -->
+</div>  <!-- Beendet den Div-Container. -->
+{% endblock %}  <!-- Beendet den "content" Block, der im Navbar-Template begonnen hat. -->

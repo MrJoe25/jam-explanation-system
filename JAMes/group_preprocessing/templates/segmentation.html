@@ -1,0 +1,122 @@
+{% extends 'users/navbar.html' %}  <!-- Erweitert die 'navbar.html' aus dem 'users'-Verzeichnis -->
+
+{% block content %}  <!-- Beginn des Inhaltsbereichs, der in 'navbar.html' eingefügt wird -->
+
+<!-- Fortschrittsbalken -->
+<div class="progress">
+  <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<!-- Container für den Hauptinhalt -->
+<div class="container my-5">
+  <h1>Segmentation</h1>  <!-- Überschrift -->
+
+  <!-- Formularbereich -->
+  <form method="post">
+    {% csrf_token %}  <!-- CSRF-Token für die Sicherheit -->
+    {{ form.as_p }}  <!-- Fügt das Formular als Paragraphen hinzu (generiert durch Django) -->
+
+    <!-- Buttons innerhalb des Formulars -->
+    <input class="btn btn-primary mt-3" type="submit" value="Save">
+    <input class="btn btn-outline-info mt-3" type="button" id="info_button" value="Information about the criteria">
+    <input class="btn btn-outline-info mt-3" type="button" id="corporation_info_button" value="Information about corporation classification">
+  </form>
+
+  <!-- Bereich für mögliche Fehlermeldungen -->
+  {% if error_message %}
+  <br>
+  <div class="alert alert-danger my-5" role="alert">
+    {{ error_message }}  <!-- Zeigt die Fehlermeldung an -->
+  </div>
+  {% endif %}
+
+  <!-- Tabelle für die Segmentierung -->
+  <table class="table table-bordered table-striped table-hover my-5">
+    <thead class="thead-dark">
+      <tr>
+        <th>Group Choice</th>  <!-- Überschrift für die Gruppenauswahl -->
+        <th>Group Name</th>  <!-- Überschrift für den Gruppennamen -->
+        <th>Lower Bound</th>  <!-- Überschrift für die untere Grenze -->
+        <th>Upper Bound</th>  <!-- Überschrift für die obere Grenze -->
+        <th>Delete</th>  <!-- Überschrift für die Lösch-Option -->
+      </tr>
+    </thead>
+    <!-- Körper der Tabelle -->
+<tbody>
+  <!-- Schleife durch die Liste der Gruppen -->
+  {% for group in groups %}
+  <tr>
+      <td>{{ group.group_choice }}</td>  <!-- Zeigt die Gruppenwahl an -->
+      <td>{{ group.group_name }}</td>  <!-- Zeigt den Gruppennamen an -->
+      <td>{{ group.lower_bound }}</td>  <!-- Zeigt die untere Grenze der Gruppe an -->
+      <td>{{ group.upper_bound }}</td>  <!-- Zeigt die obere Grenze der Gruppe an -->
+      <td>
+          <!-- Link zum Löschen der Gruppe -->
+          <a href="{% url 'delete_group' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&group_id={{ group.id }}"
+             class="btn btn-danger">Delete</a>
+      </td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>  <!-- Ende der Tabelle -->
+
+<!-- Navigationsbuttons -->
+<div class="d-flex justify-content-between">
+  <!-- Button zum Zurückkehren zur vorherigen Seite -->
+  <a href="{% url 'presegmentation' %}?file={{file}}&current_user={{current_user}}" class="btn btn-secondary">Return</a>
+  <!-- Button zum Fortfahren -->
+  <a href="#" id="continue_button" class="btn btn-primary">Continue</a>
+</div>
+
+<!-- Unsichtbarer Bereich für mögliche Fehlermeldungen -->
+<div id="error-message" style="display:none" class="alert alert-danger my-5" role="alert"></div>
+</div>  <!-- Ende des Container-Elements -->
+
+
+<script>
+  // Hinzufügen eines EventListeners zum "Continue"-Button
+document.getElementById("continue_button").addEventListener("click", function(event) {
+  // Verhindern der Standardaktion des Buttons
+  event.preventDefault();
+
+  // Umwandeln der Anzahl der Gruppen und der Länge der Gruppenliste in Ganzzahlen
+  const numberOfGroups = parseInt("{{number_of_groups}}");
+  const groupsLength = parseInt("{{groups|length}}");
+
+  // Überprüfen, ob die Anzahl der definierten Gruppen der Länge der Gruppenliste entspricht
+  if (numberOfGroups !== groupsLength) {
+    // Wenn nicht, wird eine Fehlermeldung angezeigt
+    const errorMessage = "Number of groups should be equal to " + numberOfGroups;
+    document.getElementById("error-message").innerHTML = errorMessage;
+    document.getElementById("error-message").style.display = "block";
+  } else {
+    // Wenn ja, wird zur nächsten Seite navigiert
+    window.location.href = "{% url 'splitting' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}";
+  }
+});
+
+// Hinzufügen eines EventListeners zum "Information"-Button
+document.getElementById("info_button").addEventListener("click", function(event) {
+  // Verhindern der Standardaktion des Buttons
+  event.preventDefault();
+
+  // Anzeigen einer Informationsmeldung
+  const infoMessage = "The term 'lower bound' in the context of the template refers to the minimum euro value of total assets that a company must possess in order to be considered part of a particular group. On the other hand, the term 'upper bound' represents the maximum euro value of total assets that a company can possess and still be included in the same group. In other words, the lower and upper bounds define the range of total assets that a company must fall within in order to be considered part of a specific group.\n\n\nTotal assets in a company refers to the value of all the resources that a company owns and controls, with the expectation that they will provide future economic benefit. These assets include both tangible and intangible assets such as cash, investments, property, inventory, equipment, patents, and trademarks. Total assets is used to measure a company's financial strength and its ability to generate revenue. This information is important for both investors and lenders to assess the creditworthiness and stability of a company.";
+  alert(infoMessage);
+});
+</script>
+<script>
+  // Hinzufügen eines EventListeners zum "corporation_info_button"
+document.getElementById("corporation_info_button").addEventListener("click", function(event) {
+  // Verhindern der Standardaktion des Buttons
+  event.preventDefault();
+
+  // Erstellen einer Informationsmeldung gemäß den HGB-Kriterien für die Klassifizierung von Unternehmen
+  const infoMessage = "According to HGB, corporations are mainly classified based on their balance sheet total. There are three categories:\n\nSmall corporations:\nBalance sheet total of less than 6 million euros\n\nMedium-sized corporations:\nBalance sheet total of at least 6 million euros but no more than 20 million euros\n\nLarge corporations:\nBalance sheet total of more than 20 million euros";
+
+  // Anzeigen der Informationsmeldung in einem Alert-Fenster
+  alert(infoMessage);
+});
+
+</script>
+{% endblock %}

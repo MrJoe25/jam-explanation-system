@@ -1,0 +1,60 @@
+{% load static %}  <!-- Lädt die statische Dateiverwaltung von Django -->
+
+<!DOCTYPE html>  <!-- Dokumenttyp-Deklaration für HTML5 -->
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">  <!-- Setzt den Zeichensatz auf UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">  <!-- Einstellungen für die Anzeige auf verschiedenen Bildschirmgrößen -->
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">  <!-- Fügt Bootstrap-CSS von einem CDN hinzu -->
+    <link rel="stylesheet" type="text/css" href="{% static 'users/main.css' %}">  <!-- Fügt eine zusätzliche CSS-Datei aus dem "static"-Ordner hinzu -->
+
+    <title>JAMes</title>  <!-- Setzt den Titel der Webseite -->
+</head>
+<body>
+    <header class="site-header">  <!-- Kopfbereich der Seite -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background-color:#6b9ff2;">  <!-- Navigationsleiste mit Hintergrundfarbe und anderen Eigenschaften -->
+          <div class="container">  <!-- Container für die Navigationsleiste -->
+            <a class="navbar-brand mr-4" href="/">JAM Explanation System</a>  <!-- Markenname oder Logo -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">  <!-- Button für mobile Ansicht -->
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarToggle">  <!-- Zusammenklappbarer Bereich der Navigationsleiste -->
+              <div class="navbar-nav mr-auto">  <!-- Links auf der linken Seite der Navigationsleiste -->
+                <a class="nav-item nav-link" href="{% url 'users-home' %}">Home</a>
+                <a class="nav-item nav-link" href="{% url 'users-about' %}">About</a>
+              </div>
+              <!-- Navbar Right Side -->
+              <div class="navbar-nav">  <!-- Links auf der rechten Seite der Navigationsleiste -->
+                {% if user.is_authenticated %}  <!-- Prüft, ob der Benutzer eingeloggt ist -->
+                <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>  <!-- Link zum Admin-Bereich -->
+                <a class="nav-item nav-link" href="{% url 'personal_dashboard' %}">Personal Overview</a>  <!-- Link zur persönlichen Übersicht -->
+                <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>  <!-- Link zum Abmelden -->
+                {% else %}  <!-- Wenn der Benutzer nicht eingeloggt ist -->
+                <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>  <!-- Link zum Login-Bereich -->
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </nav>
+    </header>
+    <main role="main" class="container">  <!-- Hauptbereich der Webseite in einem Container -->
+      <div class="row">  <!-- Zeile in Bootstrap, in der Spalten positioniert werden können -->
+          <div class="col-md-12">  <!-- Bootstrap-Spalte, die 12 Spalten des Rasters einnimmt -->
+  
+              {% if messages %}  <!-- Überprüfung, ob Nachrichten vorhanden sind (z.B. Flash-Nachrichten in Django) -->
+                  {% for message in messages %}  <!-- Schleife durch alle Nachrichten -->
+                  <div class="alert alert-{{ message.tags }}"></div>  <!-- Anzeigen einer Benachrichtigungsbox mit den Tags der Nachricht (z.B. 'success', 'error') -->
+                  {{ message }}  <!-- Anzeige der eigentlichen Nachricht -->
+                  {% endfor %}
+              {% endif %}
+  
+              {% block content %}{% endblock %}  <!-- Ein Block, der in abgeleiteten Templates überschrieben werden kann -->
+              {% block scripts %}{% endblock %}  <!-- Ein weiterer Block für Skripte, der ebenfalls überschrieben werden kann -->
+  
+          </div>
+      </div>
+  </main>
+  

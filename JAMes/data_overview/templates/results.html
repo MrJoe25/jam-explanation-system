@@ -1,0 +1,180 @@
+<!-- Erweitert die Navbar aus 'users/navbar.html' -->
+{% extends "users/navbar.html" %}
+
+<!-- Beginn des Inhaltsblocks -->
+{% block content %}
+
+<!-- Definiert den Dokumenttyp als HTML5 -->
+<!DOCTYPE html>
+<html>
+<body>
+
+    <!-- Fortschrittsbalken-Container -->
+    <div class="progress">
+        <!-- Fortschrittsbalken-Element -->
+        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <!-- Hauptcontainer -->
+    <div class="container">
+        <!-- Zentrierte Überschrift -->
+        <h2 class="text-center">Datasets used by user:</h2>
+        <!-- Tabelle -->
+        <table class="table table-bordered table-striped">
+            <!-- Tabellenkopf -->
+            <thead class="thead-dark">
+                <tr>
+                    <th>Superuser</th>
+                    <th>User</th>
+                    <th>Uploaded at</th>
+                    <th>File</th>
+                </tr>
+            </thead>
+            <!-- Tabellenkörper -->
+            <tbody>
+            <!-- Loop durch die 'csvfile'-Objekte im Kontext 'id' -->
+            {% for csvfile in id %}
+                <tr>
+                    <td>{{csvfile.superuser}}</td>
+                    <td>{{csvfile.user}}</td>
+                    <td>{{csvfile.uploaded_at}}</td>
+                    <td>
+                        <!-- Button zum Laden der CSV-Ergebnisse -->
+                        <a href="{% url 'results_csv'%}?file={{csvfile.file}}&current_user={{csvfile.user}}" class="btn btn-outline-primary btn-spinner" role="button" data-spinner-container=".spinner-container" data-spinner-class="spinner-border text-primary" data-spinner-text="Loading...">
+                            {{csvfile.file}}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Zusätzlicher Abstand -->
+    <br>
+    <br>
+
+    <!-- Zentrierter Container für das Formular -->
+<div class="text-center">
+    <!-- Formular für die Methode 'GET' zu '/data_overview/' -->
+    <form action="/data_overview/" method="get">
+        <!-- Button zum Benutzerwechsel -->
+        <input type="submit" value="Change User" class="btn btn-secondary">
+    </form>
+</div>
+
+<!-- Container für den Ladespinner, standardmäßig ausgeblendet -->
+<div class="spinner-container d-none">
+    <!-- Ladespinner-Element -->
+    <div class="spinner-border text-primary" role="status">
+        <!-- Text für Screenreader -->
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- CSS-Stile -->
+<style>
+    /* Stil für den Ladespinner-Container */
+    .spinner-container {
+        /* Fixierte Position */
+        position: fixed;
+        /* Abstand oben */
+        top: 0;
+        /* Abstand links */
+        left: 0;
+        /* Abstand rechts */
+        right: 0;
+        /* Abstand unten */
+        bottom: 0;
+        /* Hintergrundfarbe (schwarz mit 50% Transparenz) */
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Z-Index für Überlagerung */
+        z-index: 9999;
+        /* Flexbox für zentrierte Anordnung */
+        display: flex;
+        /* Zentrierung horizontal */
+        justify-content: center;
+        /* Zentrierung vertikal */
+        align-items: center;
+    }
+    
+    /* Stil für das Spinner-Border-Element */
+    .spinner-border {
+        /* Breite */
+        width: 1.5rem;
+        /* Höhe */
+        height: 1.5rem;
+    }
+</style>
+
+<script>
+    // Funktion zur Anzeige des Spinners definieren
+function showSpinner(button) {
+    // Den Spinner-Container aus dem Data-Attribut des Buttons holen
+    var container = button.dataset.spinnerContainer;
+    var spinner = button.dataset.spinnerClass;
+
+    // Den ursprünglichen Text des Buttons speichern
+    button.dataset.spinnerText = button.innerHTML;
+
+    // Den Button deaktivieren und den Spinner hinzufügen
+    button.disabled = true;
+    button.innerHTML = '<span class="' + spinner + '" role="status" aria-hidden="true"></span> Loading...';
+
+    // Den Spinner-Container anzeigen
+    document.querySelector(container).classList.remove('d-none');
+
+    // Event-Listener zum window-Objekt hinzufügen, um zu erkennen, wann die nächste Seite geladen ist
+    window.addEventListener('DOMContentLoaded', function() {
+        // Den Spinner-Container verstecken
+        document.querySelector(container).classList.add('d-none');
+        // Den Button aktivieren und seinen ursprünglichen Text wiederherstellen
+        button.disabled = false;
+        button.innerHTML = button.dataset.spinnerText;
+    }, {once: true});
+
+    // Event-Listener zum window-Objekt hinzufügen, um zu erkennen, wann der Benutzer zur vorherigen Seite navigiert
+    window.addEventListener('pageshow', function(event) {
+        // Überprüfen, ob der Button deaktiviert war und seinen ursprünglichen Text wiederherstellen
+        if (button.disabled) {
+            button.disabled = false;
+            button.innerHTML = button.dataset.spinnerText;
+            // Den Spinner-Container verstecken
+            document.querySelector(container).classList.add('d-none');
+        }
+    });
+}
+
+
+    // Event-Listener zu allen Spinner-Buttons hinzufügen
+var spinnerButtons = document.querySelectorAll('.btn-spinner');
+spinnerButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+        // Den Spinner anzeigen, wenn der Button geklickt wird
+        showSpinner(button);
+    });
+});
+
+// Event-Listener zum window-Objekt hinzufügen, um zu erkennen, wenn der Benutzer die Seite verlässt
+window.addEventListener('beforeunload', function() {
+    // Den Spinner-Container verstecken und alle Buttons auf ihren ursprünglichen Text zurücksetzen
+    var spinnerContainers = document.querySelectorAll('.spinner-container');
+    spinnerContainers.forEach(function(container) {
+        container.classList.add('d-none');
+    });
+    var spinnerButtons = document.querySelectorAll('.btn-spinner');
+    spinnerButtons.forEach(function(button) {
+        if (button.disabled) {
+            button.disabled = false;
+            button.innerHTML = button.dataset.spinnerText;
+        }
+    });
+});
+
+</script>
+
+
+
+
+
+{% endblock %}

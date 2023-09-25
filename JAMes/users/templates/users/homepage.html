@@ -1,0 +1,12 @@
+{% extends 'users/base.html' %}  <!-- Erweitert ein Basis-Template namens "base.html" im "users"-Verzeichnis -->
+
+{% block content %}  <!-- Öffnet einen Block namens "content", der im Eltern-Template (base.html) definiert sein sollte -->
+
+<h1> <b>AI dashboard for bankruptcy prediction</b></h1>  <!-- Überschrift mit fetter Schrift -->
+<br>  <br />  <!-- Zwei Zeilenumbrüche für zusätzlichen Abstand -->
+
+<h2>What our programme does:</h2>  <!-- Zweite Überschrift, die beschreibt, was das Programm macht -->
+
+<h2 style="padding: 10px; border: 2px solid rgb(6, 6, 6);">Based on your financial statement data, we forecast insolvencies with the help of AI models. The process is configurable for you and transparently structured to enable traceability.</h2>  <!-- Zweite Überschrift mit Inline-CSS für Padding und Border. Der Text innerhalb der Überschrift gibt Details zum Programm an -->
+
+{% endblock %}  <!-- Schließt den "content"-Block -->

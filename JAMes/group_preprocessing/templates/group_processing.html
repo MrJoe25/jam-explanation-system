@@ -1,0 +1,44 @@
+{% extends 'users/navbar.html' %}  <!-- Erweitert die 'navbar.html' aus dem 'users'-Verzeichnis -->
+
+{% block content %}  <!-- Beginn des Inhaltsbereichs, der in 'navbar.html' eingefügt wird -->
+
+<!-- Fortschrittsbalken -->
+<div class="progress">
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<h1>Group Processing</h1>  <!-- Überschrift -->
+
+<br>  <br />
+<br>  <br /> 
+
+<!-- Button-Bereich für die Segmentierung der Daten -->
+<div class="form-row">
+    <div class="col-6 text-left">
+        <!-- Button, der zur 'presegmentation'-Ansicht führt -->
+        <a href="{% url 'presegmentation' %}?file={{file}}&current_user={{current_user}}" class="btn btn-primary">Segmentation of Data</a>
+    </div>
+    </form>  <!-- Schließtag des Formulars -->
+    
+    <!-- Button für den Fall, dass keine Segmentierung der Daten gewünscht ist -->
+    <div class="col-6 text-center">
+        <a href="{% url 'ai_selection' %}?file={{file}}&current_user={{current_user}}&number_of_groups=0" class="btn btn-primary">No Segmentation of Data</a>
+    </div>
+</div>
+
+<br>  <br />
+<br>  <br /> 
+
+<!-- Button zum Zurückkehren -->
+<div class="form-row">
+    <div class="col-6 text-left">
+        <a href="{% url 'featurestat' %}?file={{file}}&current_user={{current_user}}" class="btn btn-secondary">Return</a>
+    </div>
+</form>  <!-- Schließtag des Formulars -->
+
+<br>  <br />
+<br>  <br /> 
+
+</html>  <!-- Endtag von HTML -->
+
+{% endblock %}  <!-- Ende des Inhaltsbereichs -->

@@ -1,0 +1,119 @@
+/*
+  ######################################################
+  ##                                                  ##
+  ##  Dies ist die main.css-Datei, die als            ##
+  ##  Beispieldesign aus dem Internet gezogen wurde.  ##
+  ##                                                  ##
+  ##  Quelle: https://github.com/CoreyMSchafer/code_snippets/tree/master/Django_Blog/snippets                       ##
+  ##  Autor: Corey Schafer        ##
+  ##                                                  ##
+  ######################################################
+*/
+
+/* Setzt die Hintergrundfarbe, Textfarbe und den oberen Abstand für den gesamten Seiteninhalt */
+body {
+  background: #fafafa;  /* Hintergrundfarbe der Webseite */
+  color: #333333;       /* Textfarbe der Webseite */
+  margin-top: 5rem;     /* Oberer Abstand vom Seitenanfang */
+}
+
+/* Definiert die Textfarbe für alle Überschriftenelemente (h1 bis h6) */
+h1, h2, h3, h4, h5, h6 {
+  color: #444444;  /* Textfarbe für Überschriften */
+}
+
+/* Entfernt den äußeren Abstand von ungeordneten Listen */
+ul {
+  margin: 0;  /* Setzt den äußeren Abstand auf 0 */
+}
+
+/* Definiert die Hintergrundfarbe für Elemente mit der Klasse 'bg-steel' */
+.bg-steel {
+  background-color: #5f788a;  /* Hintergrundfarbe für 'bg-steel'-Elemente */
+}
+
+/* Setzt die Textfarbe für Navigationslinks im Header */
+.site-header .navbar-nav .nav-link {
+  color: #cbd5db;  /* Textfarbe für Navigationslinks */
+}
+
+/* Ändert die Textfarbe für Navigationslinks im Header beim Überfahren mit der Maus */
+.site-header .navbar-nav .nav-link:hover {
+  color: #ffffff;  /* Textfarbe für Navigationslinks beim Überfahren mit der Maus */
+}
+
+/* Setzt das Schriftgewicht für aktive Navigationslinks im Header */
+.site-header .navbar-nav .nav-link.active {
+  font-weight: 500;  /* Schriftgewicht für aktive Navigationslinks */
+}
+
+/* Definiert die Textfarbe für Elemente mit der Klasse 'error' */
+.error {
+  color: red;  /* Textfarbe für Fehlermeldungen */
+}
+
+/* Setzt das Erscheinungsbild für den Inhaltsbereich der Seite */
+.content-section {
+  background: #ffffff;        /* Hintergrundfarbe des Inhaltsbereichs */
+  padding: 10px 20px;         /* Innenabstand des Inhaltsbereichs */
+  border: 5px solid #dddddd;  /* Rahmen des Inhaltsbereichs */
+  border-radius: 3px;         /* Abrundung der Rahmenecken */
+  margin-bottom: 20px;        /* Abstand unter dem Inhaltsbereich */
+}
+
+/* Definiert die Textfarbe für Artikel-Titel */
+.article-title {
+  color: #444444;  /* Textfarbe für Artikel-Titel */
+}
+
+/* Ändert die Textfarbe und Entfernt Textdekoration für Artikel-Titel beim Überfahren mit der Maus */
+a.article-title:hover {
+  color: #428bca;          /* Textfarbe beim Überfahren mit der Maus */
+  text-decoration: none;   /* Entfernt die Textunterstreichung */
+}
+
+/* Setzt die Darstellung des Textes im Artikel-Inhalt */
+.article-content {
+  white-space: pre-line;  /* Erhält Zeilenumbrüche und führende Leerzeichen im Text */
+}
+
+  
+/* Setzt die Dimensionen und den rechten Abstand für Artikel-Bilder */
+.article-img {
+  height: 65px;          /* Höhe des Artikel-Bildes */
+  width: 65px;           /* Breite des Artikel-Bildes */
+  margin-right: 16px;    /* Rechter Abstand neben dem Artikel-Bild */
+}
+
+/* Definiert das Erscheinungsbild für den Metadaten-Bereich eines Artikels */
+.article-metadata {
+  padding-bottom: 1px;         /* Unterer Innenabstand im Metadaten-Bereich */
+  margin-bottom: 4px;          /* Unterer Abstand unter dem Metadaten-Bereich */
+  border-bottom: 1px solid #e3e3e3;  /* Untere Grenzlinie im Metadaten-Bereich */
+}
+
+/* Ändert die Textfarbe und entfernt die Textdekoration für Links im Metadaten-Bereich beim Überfahren mit der Maus */
+.article-metadata a:hover {
+  color: #333;              /* Textfarbe beim Überfahren mit der Maus */
+  text-decoration: none;    /* Entfernt die Textunterstreichung */
+}
+
+/* Setzt die Dimensionen und die vertikale Ausrichtung für SVG-Elemente in Artikeln */
+.article-svg {
+  width: 25px;               /* Breite des SVG-Elements */
+  height: 25px;              /* Höhe des SVG-Elements */
+  vertical-align: middle;    /* Vertikale Ausrichtung des SVG-Elements */
+}
+
+/* Definiert die Dimensionen und Abstände für Profilbilder im Account-Bereich */
+.account-img {
+  height: 125px;             /* Höhe des Profilbildes */
+  width: 125px;              /* Breite des Profilbildes */
+  margin-right: 20px;        /* Rechter Abstand neben dem Profilbild */
+  margin-bottom: 16px;       /* Abstand unter dem Profilbild */
+}
+
+/* Setzt die Schriftgröße für Überschriften im Account-Bereich */
+.account-heading {
+  font-size: 2.5rem;         /* Schriftgröße für Account-Überschriften */
+}

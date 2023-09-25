@@ -1,0 +1,13 @@
+{% extends "users/base.html" %}  <!-- Erweitert das Basis-Template "users/base.html", das die allgemeine Struktur der Webseite festlegt. -->
+
+{% block content %}  <!-- Beginnt einen Block namens "content", der im Basis-Template definiert sein sollte. Dieser Block wird durch den folgenden HTML-Code ersetzt. -->
+
+    <h2>You have been logged out</h2>  <!-- Fügt eine Überschrift hinzu, die anzeigt, dass der Benutzer abgemeldet wurde. -->
+
+    <div class="border-top pt-3">  <!-- Erstellt einen Div-Container mit einer oberen Grenze und einem Padding oben von 3 Einheiten. -->
+        <small class="text-muted">  <!-- Setzt den Text auf klein und grau. -->
+            <a href="{% url 'login' %}">Log In Again</a>  <!-- Erstellt einen Link, der zur Login-Seite führt. Der Link wird durch das URL-Tag dynamisch generiert. -->
+        </small>
+    </div>
+
+{% endblock %}  <!-- Beendet den "content"-Block. -->

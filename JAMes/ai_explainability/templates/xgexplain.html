@@ -1,0 +1,1959 @@
+<!-- Erweitert das Template 'users/navbar.html'. -->
+{% extends 'users/navbar.html' %}
+
+<!-- Der Hauptinhalt der Seite wird hier eingefügt. -->
+{% block content %}
+
+<!-- Container für den Fortschrittsbalken -->
+<div class="progress">
+    <!-- Der eigentliche Fortschrittsbalken; er ist zu 85% gefüllt. -->
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<!-- Überschrift der Seite -->
+<h1>XGBoost Explainability</h1>
+
+<!-- Abstände zur nächsten HTML-Komponente -->
+<br>  
+<br />
+
+<!-- Einbindung externer JavaScript-Bibliotheken für PDF-Erstellung und CSV-Parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.1.0/papaparse.min.js"></script>
+
+<!-- JavaScript-Code für die Seite -->
+<script type="text/javascript">
+  // Funktion, um die Daten als CSV-Datei zu exportieren
+  function exportToCSV() {
+    // Button für den CSV-Export suchen
+    const exportButton = document.getElementById("export-csv-button");
+
+    // Wenn der Button nicht gefunden wird, beende die Funktion
+    if (!exportButton) return;
+
+    // Event-Listener, der auf Klicks des Buttons reagiert
+    exportButton.addEventListener("click", function() {
+      // Sucht die erste Tabelle auf der Seite
+      const table = document.querySelector("table");
+
+      // Ruft alle Zeilen der Tabelle ab
+      const rows = table.querySelectorAll("tr");
+
+      // Initialisiert den CSV-String
+      let csvContent = "data:text/csv;charset=utf-8,";
+
+      // Fügt alle Zeilen der Tabelle dem CSV-String hinzu
+      csvContent += [...rows].map(row => {
+        const columns = row.querySelectorAll("td,th");
+        return [...columns].map(column => column.textContent).join(",");
+      }).join("\n");
+
+      // Kodiert den CSV-String als URI
+      const encodedUri = encodeURI(csvContent);
+
+      // Erstellt einen neuen Link, um die CSV-Datei herunterzuladen
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "data.csv");
+
+      // Fügt den Link zum DOM hinzu
+      document.body.appendChild(link);
+
+      // Simuliert einen Klick auf den Link, um den Download zu starten
+      link.click();
+    });
+  }
+
+  // Fügt die exportToCSV-Funktion dem 'load' Event des Fensters hinzu
+  window.addEventListener("load", exportToCSV);
+</script>
+
+<!-- Abstandshalter zum vorherigen Element -->
+<br>  
+<br />
+
+<!-- Abstandshalter zum nächsten Element -->
+<br>  
+<br /> 
+
+<!-- Überschrift 2. Ordnung, zentriert -->
+<h2 class="text-center">XGBoost Model Evaluation</h2>
+
+<!-- Input-Button, um Informationen zum XGBoost-Modell anzuzeigen -->
+<input class="btn btn-outline-info btn-block" type="button" id="xgb_evaluation_info_button" value="Information about the XGBoost Model Results">
+
+<!-- Karten-Container, der die Modell-Evaluierungsdaten enthält -->
+<div class="card">
+
+  <!-- Container für den Karteninhalt -->
+  <div class="card-body">
+
+    <!-- Karten-Titel -->
+    <h5 class="card-title">XGBoost Scores</h5>
+
+    <!-- Beschreibungstext für die Tabelle -->
+    <p class="card-text">The following table shows the scores for the XGBoost model.</p>
+
+    <!-- Tabelle mit den Modellbewertungsdaten -->
+    <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="overall" data-group-name="Overall">
+    
+      <!-- Kopfzeile der Tabelle -->
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Group Name</th>
+          <th scope="col">Accuracy</th>
+          <th scope="col">F1-Score</th>
+          <th scope="col">Precision</th>
+          <th scope="col">Brier-Score</th>
+          <th scope="col">Recall</th>
+          <th scope="col">Roc-AUC</th>
+        </tr>
+      </thead>
+
+      <!-- Tabellenkörper -->
+      <tbody>
+
+        <!-- Dynamische Generierung der Tabellenzeilen durch Schleife -->
+        {% for result in results %}
+        <tr>
+          <th scope="row">{{ forloop.counter }}</th>
+          <td>{{ result.group_name }}</td>
+          <td>{{ result.accuracy }}</td>
+          <td>{{ result.f1 }}</td>
+          <td>{{ result.precision }}</td>
+          <td>{{ result.brier }}</td>
+          <td>{{ result.recall }}</td>
+          <td>{{ result.roc_auc }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Button zum Exportieren der Tabelle als CSV -->
+    <button id="export-csv-button" class="btn btn-primary">CSV Export</button>
+  </div>
+</div>
+
+
+<!-- Abstandshalter zum vorherigen Element -->
+<br>  
+<br />
+
+<!-- Abstandshalter zum nächsten Element -->
+<br>  
+<br />
+
+<!-- Überschrift 2. Ordnung, zentriert -->
+<h2 class="text-center">XGBoost Model Details</h2>
+
+<!-- Input-Button, um Informationen zur XGBoost-Modellspezifikation anzuzeigen -->
+<input class="btn btn-outline-info btn-block" type="button" id="xgb_params_info_button" value="Information about the XGBoost Model Specification">
+
+<!-- Bedingung: Wird nur ausgeführt, wenn die Länge der Ergebnisliste genau 1 beträgt -->
+{% if results|length == 1 %}
+
+  <!-- Container, nimmt die gesamte mittlere Spalte (12 Spalten) ein -->
+  <div class="col-md-12">
+
+    <!-- Karten-Container für die Modellspezifikationen -->
+    <div class="card">
+
+      <!-- Container für den Karteninhalt -->
+      <div class="card-body">
+
+        <!-- Überschrift für die Modellspezifikationen der spezifischen Gruppe -->
+        <h2>Model Details - Group {{ results.0.group_name }}</h2>
+
+        <!-- Tabelle für die Modellspezifikationen -->
+        <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table1" data-group-name="{{ results.0.group_name }}">
+
+          <!-- Kopfzeile der Tabelle -->
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Hyperparameter</th>
+              <th scope="col">Value</th>
+            </tr>
+          </thead>
+
+          <!-- Tabellenkörper -->
+          <tbody>
+
+            <!-- Schleife durch die Hyperparameter des Modells -->
+            {% for param, value in results.0.hyperparameters.items %}
+              <tr>
+                <td>{{ param }}</td>
+                <td>{{ value }}</td>
+              </tr>
+            {% endfor %}
+
+            <!-- Zeile für den speziellen Hyperparameter 'num_boost_round' -->
+            <tr>
+              <td>num_boost_round</td>
+              <td>{{ results.0.num_boost_round }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<!-- Falls die Länge der Ergebnisliste genau 2 beträgt -->
+{% else %}
+  {% if results|length == 2 %}
+
+    <!-- Setzt die Variable 'col_size' auf den Wert 6 -->
+    {% with col_size=6 %}
+
+      <!-- Erstellt eine neue Zeile -->
+      <div class="row">
+
+        <!-- Schleife durch die beiden Ergebnisse in der Liste 'results' -->
+        {% for result in results %}
+
+          <!-- Erstellt eine Spalte, die 6 von 12 möglichen Spalten im Grid-System einnimmt -->
+          <div class="col-md-{{ col_size }}">
+
+            <!-- Karten-Container für die Modellspezifikationen -->
+            <div class="card">
+
+              <!-- Container für den Karteninhalt -->
+              <div class="card-body">
+
+                <!-- Überschrift für die Modellspezifikationen der spezifischen Gruppe -->
+                <h2>Model Details - Group {{ result.group_name }}</h2>
+
+                <!-- Tabelle für die Modellspezifikationen -->
+                <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table1" data-group-name="{{ result.group_name }}">
+
+                  <!-- Kopfzeile der Tabelle -->
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">Hyperparameter</th>
+                      <th scope="col">Value</th>
+                    </tr>
+                  </thead>
+
+                  <!-- Tabellenkörper -->
+                  <tbody>
+
+                    <!-- Schleife durch die Hyperparameter des Modells -->
+                    {% for param, value in result.hyperparameters.items %}
+                      <tr>
+                        <td>{{ param }}</td>
+                        <td>{{ value }}</td>
+                      </tr>
+                    {% endfor %}
+
+                    <!-- Zeile für den speziellen Hyperparameter 'num_boost_round' -->
+                    <tr>
+                      <td>num_boost_round</td>
+                      <td>{{ result.num_boost_round }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        <!-- Schließt die Schleife ab -->
+        {% endfor %}
+      </div>
+
+    <!-- Schließt die 'with'-Anweisung ab -->
+    {% endwith %}
+  <!-- Falls die Länge der Ergebnisliste genau 3 beträgt -->
+{% else %}
+{% if results|length == 3 %}
+
+  <!-- Setzt die Variable 'col_size' auf den Wert 4 -->
+  {% with col_size=4 %}
+
+    <!-- Erstellt eine neue Zeile -->
+    <div class="row">
+
+      <!-- Schleife durch die drei Ergebnisse in der Liste 'results' -->
+      {% for result in results %}
+
+        <!-- Erstellt eine Spalte, die 4 von 12 möglichen Spalten im Grid-System einnimmt -->
+        <div class="col-md-{{ col_size }}">
+
+          <!-- Karten-Container für die Modellspezifikationen -->
+          <div class="card">
+
+            <!-- Container für den Karteninhalt -->
+            <div class="card-body">
+
+              <!-- Überschrift für die Modellspezifikationen der spezifischen Gruppe -->
+              <h2>Model Details - Group {{ result.group_name }}</h2>
+
+              <!-- Tabelle für die Modellspezifikationen -->
+              <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table1" data-group-name="{{ result.group_name }}">
+
+                <!-- Kopfzeile der Tabelle -->
+                <thead class="thead-dark">
+                  <tr>
+                    <th scope="col">Hyperparameter</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+
+                <!-- Tabellenkörper -->
+                <tbody>
+
+                  <!-- Schleife durch die Hyperparameter des Modells -->
+                  {% for param, value in result.hyperparameters.items %}
+                    <tr>
+                      <td>{{ param }}</td>
+                      <td>{{ value }}</td>
+                    </tr>
+                  {% endfor %}
+
+                  <!-- Zeile für den speziellen Hyperparameter 'num_boost_round' -->
+                  <tr>
+                    <td>num_boost_round</td>
+                    <td>{{ result.num_boost_round }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      <!-- Schließt die Schleife ab -->
+      {% endfor %}
+    </div>
+
+  <!-- Schließt die 'with'-Anweisung ab -->
+  {% endwith %}
+   <!-- Falls die Länge der Ergebnisliste genau 4 beträgt -->
+{% else %}
+{% if results|length == 4 %}
+
+  <!-- Setzt die Variable 'col_size' auf den Wert 3 -->
+  {% with col_size=3 %}
+
+    <!-- Erstellt eine neue Zeile -->
+    <div class="row">
+
+      <!-- Schleife durch die vier Ergebnisse in der Liste 'results' -->
+      {% for result in results %}
+
+        <!-- Erstellt eine Spalte, die 3 von 12 möglichen Spalten im Grid-System einnimmt -->
+        <div class="col-md-{{ col_size }}">
+
+          <!-- Karten-Container für die Modellspezifikationen -->
+          <div class="card">
+
+            <!-- Container für den Karteninhalt -->
+            <div class="card-body">
+
+              <!-- Überschrift für die Modellspezifikationen der spezifischen Gruppe -->
+              <h2>Model Details - Group {{ result.group_name }}</h2>
+
+              <!-- Tabelle für die Modellspezifikationen -->
+              <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table1" data-group-name="{{ result.group_name }}">
+
+                <!-- Kopfzeile der Tabelle -->
+                <thead class="thead-dark">
+                  <tr>
+                    <th scope="col">Hyperparameter</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+
+                <!-- Tabellenkörper -->
+                <tbody>
+
+                  <!-- Schleife durch die Hyperparameter des Modells -->
+                  {% for param, value in result.hyperparameters.items %}
+                    <tr>
+                      <td>{{ param }}</td>
+                      <td>{{ value }}</td>
+                    </tr>
+
+                  <!-- Falls keine Hyperparameter gefunden werden -->
+                  {% empty %}
+                    <tr>
+                      <td colspan="2">No hyperparameters found.</td>
+                    </tr>
+
+                  <!-- Schließt die Schleife ab -->
+                  {% endfor %}
+
+                  <!-- Zeile für den speziellen Hyperparameter 'num_boost_round' -->
+                  <tr>
+                    <td>num_boost_round</td>
+                    <td>{{ result.num_boost_round }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      <!-- Schließt die Schleife ab -->
+      {% endfor %}
+    </div>
+
+  <!-- Schließt die 'with'-Anweisung ab -->
+  {% endwith %}
+{% endif %}
+
+<!-- Schließt die umschließenden 'if'-Anweisungen ab -->
+{% endif %}
+{% endif %}
+{% endif %}
+
+<!-- Zeilen für Abstand -->
+<br>
+<br>
+
+
+
+<br>  <br />
+<br>  <br />
+<!-- Überschrift, zentriert, für den Bereich, der die XGBoost Feature Importance behandelt -->
+<h2 class="text-center">XGBoost Feature Importance</h2>
+
+<!-- Button, der Informationen zur XGBoost Feature Importance anzeigt -->
+<input class="btn btn-outline-info btn-block" type="button" id="xgb_feature_info_button" id="table1" value="Information about the XGBoost Feature Importance">
+
+<!-- Überprüft, ob die Länge der Ergebnisliste genau 1 beträgt -->
+{% if results|length == 1 %}
+
+  <!-- Erstellt eine Spalte, die 12 von 12 möglichen Spalten im Grid-System einnimmt -->
+  <div class="col-md-12">
+
+    <!-- Karten-Container für die Feature Importance -->
+    <div class="card">
+
+      <!-- Container für den Karteninhalt -->
+      <div class="card-body">
+
+        <!-- Überschrift für die Feature Importance der spezifischen Gruppe -->
+        <h2>XGBoost Feature Importance - Group {{ results.0.group_name }}</h2>
+
+        <!-- Tabelle für die Feature Importance -->
+        <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table2" data-group-name="{{ results.0.group_name }}">
+
+          <!-- Kopfzeile der Tabelle -->
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col">Importance</th>
+            </tr>
+          </thead>
+
+          <!-- Tabellenkörper -->
+          <tbody>
+
+            <!-- Schleife durch die Feature Importance-Werte -->
+            {% for feature_importance in results.0.xg_feature_importances %}
+
+              <!-- Zeile für jedes Feature, wobei die CSS-Klasse je nach Feature Importance variiert -->
+              <tr class="{% if feature_importance.1 >= 0.03 %}table-primary{% elif feature_importance.1 >= 0 %}table-warning{% else %}table-danger{% endif %}">
+
+                <!-- Feature Name und seine Position in der Liste -->
+                <td>{{ forloop.counter }}. {{ feature_importance.0 }}</td>
+
+                <!-- Feature Importance-Wert -->
+                <td>{{ feature_importance.1 }}</td>
+              </tr>
+
+            <!-- Schließt die Schleife ab -->
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<!-- Überprüft, ob die Länge der Ergebnisliste genau 2 beträgt -->
+{% else %}
+  {% if results|length == 2 %}
+
+    <!-- Setzt die Spaltenbreite für die Bootstrap-Grid auf 6 -->
+    {% with col_size=6 %}
+
+      <!-- Erzeugt eine neue Zeile für das Grid-System -->
+      <div class="row">
+
+        <!-- Durchläuft die Ergebnisse in der 'results'-Liste -->
+        {% for result in results %}
+
+          <!-- Definiert die Spaltenbreite entsprechend der oben festgelegten 'col_size' -->
+          <div class="col-md-{{ col_size }}">
+
+            <!-- Karten-Container für die Feature Importance -->
+            <div class="card">
+
+              <!-- Container für den Karteninhalt -->
+              <div class="card-body">
+
+                <!-- Überschrift für die Feature Importance der jeweiligen Gruppe -->
+                <h2>XGBoost Feature Importance - Group {{ result.group_name }}</h2>
+
+                <!-- Tabelle für die Feature Importance -->
+                <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table2" data-group-name="{{ result.group_name }}">
+
+                  <!-- Kopfzeile der Tabelle -->
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">Feature</th>
+                      <th scope="col">Importance</th>
+                    </tr>
+                  </thead>
+
+                  <!-- Tabellenkörper -->
+                  <tbody>
+
+                    <!-- Durchläuft die Feature Importance-Werte für das aktuelle 'result' -->
+                    {% for feature_importance in result.xg_feature_importances %}
+
+                      <!-- Zeile für jedes Feature, wobei die CSS-Klasse je nach Feature Importance variiert -->
+                      <tr class="{% if feature_importance.1 >= 0.03 %}table-primary{% elif feature_importance.1 >= 0 %}table-warning{% else %}table-danger{% endif %}">
+
+                        <!-- Feature-Name und seine Position in der Liste -->
+                        <td>{{ forloop.counter }}. {{ feature_importance.0 }}</td>
+
+                        <!-- Feature Importance-Wert -->
+                        <td>{{ feature_importance.1 }}</td>
+                      </tr>
+
+                    <!-- Schließt die for-Schleife ab -->
+                    {% endfor %}
+
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+          </div>
+
+        <!-- Schließt die for-Schleife für die Ergebnisse ab -->
+        {% endfor %}
+
+      </div>
+
+    <!-- Schließt die 'with'-Anweisung ab -->
+    {% endwith %}
+  <!-- Überprüft, ob die Länge der Ergebnisliste genau 3 beträgt -->
+{% else %}
+{% if results|length == 3 %}
+
+    <!-- Setzt die Spaltenbreite für das Bootstrap-Grid-System auf 4 -->
+    {% with col_size=4 %}
+
+        <!-- Erstellt eine neue Zeile im Grid-System -->
+        <div class="row">
+
+            <!-- Durchläuft alle Ergebnisse in der 'results'-Liste -->
+            {% for result in results %}
+
+                <!-- Definiert die Spaltenbreite basierend auf 'col_size' -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Karten-Container für die Feature-Importance-Information -->
+                    <div class="card">
+
+                        <!-- Container für den Karteninhalt -->
+                        <div class="card-body">
+
+                            <!-- Überschrift, die die Feature Importance für die jeweilige Gruppe anzeigt -->
+                            <h2>XGBoost Feature Importance - Group {{ result.group_name }}</h2>
+
+                            <!-- Tabelle, die die Feature-Importance-Daten anzeigt -->
+                            <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table2" data-group-name="{{ result.group_name }}">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">Feature</th>
+                                        <th scope="col">Importance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <!-- Durchläuft die Feature-Importance-Werte im aktuellen 'result' -->
+                                    {% for feature_importance in result.xg_feature_importances %}
+
+                                        <!-- Erstellt eine Tabellezeile mit einer bestimmten CSS-Klasse basierend auf dem Feature-Importance-Wert -->
+                                        <tr class="{% if feature_importance.1 >= 0.03 %}table-primary{% elif feature_importance.1 >= 0 %}table-warning{% else %}table-danger{% endif %}">
+
+                                            <!-- Zeigt den Feature-Namen und seine Position in der Liste an -->
+                                            <td>{{ forloop.counter }}. {{ feature_importance.0 }}</td>
+
+                                            <!-- Zeigt den Feature-Importance-Wert an -->
+                                            <td>{{ feature_importance.1 }}</td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    {% endwith %}
+    <!-- Überprüft, ob die Länge der Ergebnisliste genau 4 beträgt -->
+{% if results|length == 4 %}
+
+<!-- Setzt die Spaltenbreite für das Bootstrap-Grid-System auf 3 -->
+{% with col_size=3 %}
+
+  <!-- Erstellt eine neue Zeile im Grid-System -->
+  <div class="row">
+
+    <!-- Durchläuft alle Ergebnisse in der 'results'-Liste -->
+    {% for result in results %}
+
+      <!-- Definiert die Spaltenbreite basierend auf 'col_size' -->
+      <div class="col-md-{{ col_size }}">
+
+        <!-- Karten-Container für die Feature-Importance-Information -->
+        <div class="card">
+
+          <!-- Container für den Karteninhalt -->
+          <div class="card-body">
+
+            <!-- Überschrift, die die Feature Importance für die jeweilige Gruppe anzeigt -->
+            <h2>XGBoost Feature Importance - Group {{ result.group_name }}</h2>
+
+            <!-- Tabelle, die die Feature-Importance-Daten anzeigt -->
+            <table class="table table-striped table-bordered table-responsive" data-for-pdf="True" id="table2" data-group-name="{{ result.group_name }}">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col">Feature</th>
+                  <th scope="col">Importance</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <!-- Durchläuft die Feature-Importance-Werte im aktuellen 'result' -->
+                {% for feature_importance in result.xg_feature_importances %}
+
+                  <!-- Erstellt eine Tabellezeile mit einer bestimmten CSS-Klasse basierend auf dem Feature-Importance-Wert -->
+                  <tr class="{% if feature_importance.1 >= 0.03 %}table-primary{% elif feature_importance.1 >= 0 %}table-warning{% else %}table-danger{% endif %}">
+
+                    <!-- Zeigt den Feature-Namen und seine Position in der Liste an -->
+                    <td>{{ forloop.counter }}. {{ feature_importance.0 }}</td>
+
+                    <!-- Zeigt den Feature-Importance-Wert an -->
+                    <td>{{ feature_importance.1 }}</td>
+                  </tr>
+                {% endfor %}
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+  </div>
+{% endwith %}
+{% endif %}
+  {% endif %}
+{% endif %}
+{% endif %}
+
+<!-- Leere Zeilen für bessere Lesbarkeit oder Abstand -->
+<br>  <br />
+<br>  <br />
+
+
+
+
+
+<!-- Überschrift für den Abschnitt über den SHAP Summary Plot -->
+<h2 class="text-center">SHAP Summary Plot - Bar</h2>
+
+<!-- Eingabeknopf zur Anzeige von Informationen über den bar-type summary plot -->
+<input class="btn btn-outline-info btn-block" type="button" id="summary_bar_info_button" value="Information about the bar-type summary plot">
+
+<!-- Überprüft, ob die Länge der Ergebnisliste genau 1 beträgt -->
+{% if results|length == 1 %}
+
+    <!-- Definiert eine Spalte mit der vollen Breite (12 Spalten im Bootstrap-Grid-System) -->
+    <div class="col-md-12">
+
+        <!-- Leerzeile -->
+        <p></p>
+
+        <!-- Zeigt den Gruppennamen des einzigen Elements in 'results' an -->
+        <h2>{{ results.0.group_name }}</h2>
+
+        <!-- Leerzeile -->
+        <p></p>
+
+        <!-- Karten-Container für den SHAP Summary Plot -->
+        <div class="card">
+
+            <!-- Container für den Karteninhalt -->
+            <div class="card-body">
+
+                <!-- Untertitel für den SHAP Summary Plot -->
+                <h5>SHAP Summary Plot</h5>
+
+                <!-- Bild des SHAP Summary Plots, das aus der 'results'-Liste geladen wird -->
+                <img src="{{ results.0.shap_summary_plot }}" id="image1" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ results.0.group_name }}" data-for-pdf="false">
+
+                <!-- Zeilenumbruch -->
+                <br>
+
+                <!-- Container für die Formularzeile -->
+                <div class="form-row">
+
+                    <!-- Spalte nimmt die Hälfte der verfügbaren Breite ein -->
+                    <div class="col-6 text-left">
+
+                        <!-- Download-Button für den SHAP Summary Plot -->
+                        <a href="{{ results.0.shap_summary_plot }}" download class="btn btn-outline-primary btn-block">Export Summary Plot</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Überprüfung, ob die 'else'-Bedingung wahr ist -->
+{% else %}
+
+    <!-- Überprüfung, ob die Länge der 'results'-Liste genau 2 beträgt -->
+    {% if results|length == 2 %}
+
+        <!-- Festlegen der Spaltengröße für Bootstrap auf 6 -->
+        {% with col_size=6 %}
+
+            <!-- Zeilen-Container für Bootstrap -->
+            <div class="row">
+
+                <!-- Durchlaufen aller Ergebnisse in der 'results'-Liste -->
+                {% for result in results %}
+
+                    <!-- Spalten-Container mit der festgelegten Größe -->
+                    <div class="col-md-{{ col_size }}">
+
+                        <!-- Leerzeile -->
+                        <p></p>
+
+                        <!-- Anzeigen des Gruppennamens des aktuellen Elements in 'results' -->
+                        <h2>{{ result.group_name }}</h2>
+
+                        <!-- Leerzeile -->
+                        <p></p>
+
+                        <!-- Karten-Container für den SHAP Summary Plot -->
+                        <div class="card">
+
+                            <!-- Container für den Karteninhalt -->
+                            <div class="card-body">
+
+                                <!-- Untertitel für den SHAP Summary Plot -->
+                                <h5>SHAP Summary Plot</h5>
+
+                                <!-- Bild des SHAP Summary Plots, das aus dem 'result'-Objekt geladen wird -->
+                                <img src="{{ result.shap_summary_plot }}" id="image1" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                                <!-- Zeilenumbruch -->
+                                <br>
+
+                                <!-- Container für die Formularzeile -->
+                                <div class="form-row">
+
+                                    <!-- Spalte nimmt die Hälfte der verfügbaren Breite ein -->
+                                    <div class="col-6 text-left">
+
+                                        <!-- Download-Button für den SHAP Summary Plot -->
+                                        <a href="{{ result.shap_summary_plot }}" download class="btn btn-outline-primary btn-block">Export Summary Plot</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endwith %}
+    <!-- 'else'-Zweig, der ausführt wird, wenn die vorherigen Bedingungen nicht erfüllt sind -->
+{% else %}
+
+<!-- Überprüfen, ob die Länge der 'results'-Liste genau 3 beträgt -->
+{% if results|length == 3 %}
+
+    <!-- Festlegen der Bootstrap-Spaltengröße auf 4 -->
+    {% with col_size=4 %}
+
+        <!-- Erstellen eines Bootstrap-Row-Containers -->
+        <div class="row">
+
+            <!-- Durchlaufen aller 'result'-Objekte in der 'results'-Liste -->
+            {% for result in results %}
+
+                <!-- Erstellen einer Bootstrap-Spalte mit der festgelegten Größe -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Leerzeile für Abstand -->
+                    <p></p>
+
+                    <!-- Anzeige des Gruppennamens für das aktuelle 'result'-Objekt -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Weitere Leerzeile für Abstand -->
+                    <p></p>
+
+                    <!-- Erstellen einer Bootstrap-Karte für den SHAP Summary Plot -->
+                    <div class="card">
+
+                        <!-- Karteninhalt -->
+                        <div class="card-body">
+
+                            <!-- Untertitel der Karte -->
+                            <h5>SHAP Summary Plot</h5>
+
+                            <!-- Anzeige des SHAP Summary Plots als Bild -->
+                            <img src="{{ result.shap_summary_plot }}" id="image1" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Zeilenumbruch -->
+                            <br>
+
+                            <!-- Container für die Formularzeile -->
+                            <div class="form-row">
+
+                                <!-- Bootstrap-Spalte für den Download-Button -->
+                                <div class="col-6 text-left">
+
+                                    <!-- Download-Button für den SHAP Summary Plot -->
+                                    <a href="{{ result.shap_summary_plot }}" download class="btn btn-outline-primary btn-block">Export Summary Plot</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endwith %}
+<!-- Beginn des 'else'-Zweigs, der ausführt wird, wenn keine der vorherigen Bedingungen erfüllt ist -->
+{% else %}
+
+    <!-- Überprüfen, ob die Länge der 'results'-Liste genau 4 beträgt -->
+    {% if results|length == 4 %}
+
+        <!-- Festlegen der Bootstrap-Spaltengröße auf 3, da es vier Spalten geben wird -->
+        {% with col_size=3 %}
+
+            <!-- Erstellen eines Bootstrap-Row-Containers -->
+            <div class="row">
+
+                <!-- Durchlaufen aller 'result'-Objekte in der 'results'-Liste -->
+                {% for result in results %}
+
+                    <!-- Erstellen einer Bootstrap-Spalte mit der festgelegten Größe -->
+                    <div class="col-md-{{ col_size }}">
+
+                        <!-- Leerzeile für Abstand -->
+                        <p></p>
+
+                        <!-- Anzeige des Gruppennamens für das aktuelle 'result'-Objekt -->
+                        <h2>{{ result.group_name }}</h2>
+
+                        <!-- Weitere Leerzeile für Abstand -->
+                        <p></p>
+
+                        <!-- Erstellen einer Bootstrap-Karte für den SHAP Summary Plot -->
+                        <div class="card">
+
+                            <!-- Karteninhalt -->
+                            <div class="card-body">
+
+                                <!-- Untertitel der Karte -->
+                                <h5>SHAP Summary Plot</h5>
+
+                                <!-- Anzeige des SHAP Summary Plots als Bild -->
+                                <img src="{{ result.shap_summary_plot }}" id="image1" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                                <!-- Zeilenumbruch -->
+                                <br>
+
+                                <!-- Container für die Formularzeile -->
+                                <div class="form-row">
+
+                                    <!-- Bootstrap-Spalte für den Download-Button -->
+                                    <div class="col-6 text-left">
+
+                                        <!-- Download-Button für den SHAP Summary Plot -->
+                                        <a href="{{ result.shap_summary_plot }}" download class="btn btn-outline-primary btn-block">Export Summary Plot</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endwith %}
+    {% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+
+
+<!-- Überschrift im Zentrum des Abschnitts, betrifft den SHAP Summary Scatterplot -->
+<h2 class="text-center">SHAP Summary Plot - Scatterplot</h2>
+
+<!-- Eingabeknopf, der Informationen über den Scatterplot (Summary Plot) gibt -->
+<input class="btn btn-outline-info btn-block" type="button" id="summary_scatter_info_button" value="Information about the Scatterplot (summary plot)">
+
+<!-- Überprüfung, ob die Länge der 'results'-Liste genau 1 beträgt -->
+{% if results|length == 1 %}
+
+    <!-- Erstellung einer Bootstrap-Spalte mit voller Breite (12) -->
+    <div class="col-md-12">
+
+        <!-- Abstandhalter -->
+        <p></p>
+
+        <!-- Anzeige des Gruppennamens aus dem ersten (und einzigen) Element der 'results'-Liste -->
+        <h2>{{ results.0.group_name }}</h2>
+
+        <!-- Weitere Abstandhalter -->
+        <p></p>
+
+        <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Summary Plots -->
+        <div class="card">
+
+            <!-- Inhalt der Karte -->
+            <div class="card-body">
+
+                <!-- Untertitel der Karte -->
+                <h5>SHAP Summary Plot Value</h5>
+
+                <!-- Einbindung des SHAP Summary Plot-Bildes aus dem ersten (und einzigen) Element der 'results'-Liste -->
+                <img src="{{ results.0.shap_summary_plot_value }}" id="image2" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ results.0.group_name }}" data-for-pdf="false">
+
+                <!-- Zeilenumbrüche und Abstandhalter -->
+                <br>
+                <p></p>
+                <p></p>
+
+                <!-- Download-Link für den SHAP Summary Plot, eingebettet in einen Button -->
+                <a href="{{ results.0.shap_summary_plot_value }}" download class="btn btn-outline-primary btn-block">Export Summary Plot Value</a>
+            </div>
+        </div>
+    </div>
+<!-- Falls die 'results'-Liste genau 2 Elemente hat -->
+{% else %}
+    {% if results|length == 2 %}
+
+        <!-- Festlegung der Bootstrap-Spaltengröße auf 6, um zwei Elemente nebeneinander darzustellen -->
+        {% with col_size=6 %}
+
+            <!-- Erstellung einer Bootstrap-Zeile -->
+            <div class="row">
+
+                <!-- Schleife durch die beiden Elemente der 'results'-Liste -->
+                {% for result in results %}
+
+                    <!-- Erstellung einer Bootstrap-Spalte mit der festgelegten Spaltengröße -->
+                    <div class="col-md-{{ col_size }}">
+
+                        <!-- Abstandhalter -->
+                        <p></p>
+
+                        <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+                        <h2>{{ result.group_name }}</h2>
+
+                        <!-- Weitere Abstandhalter -->
+                        <p></p>
+
+                        <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Summary Plots -->
+                        <div class="card">
+
+                            <!-- Inhalt der Karte -->
+                            <div class="card-body">
+
+                                <!-- Untertitel der Karte -->
+                                <h5>SHAP Summary Plot Value</h5>
+
+                                <!-- Einbindung des SHAP Summary Plot-Bildes für das aktuelle Element -->
+                                <img src="{{ result.shap_summary_plot_value }}" id="image2" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                                <!-- Zeilenumbrüche und Abstandhalter -->
+                                <br>
+                                <p></p>
+                                <p></p>
+
+                                <!-- Download-Link für den SHAP Summary Plot, eingebettet in einen Button -->
+                                <a href="{{ result.shap_summary_plot_value }}" download class="btn btn-outline-primary btn-block">Export Summary Plot Value</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endwith %}
+    <!-- Falls die 'results'-Liste genau 3 Elemente hat -->
+{% else %}
+{% if results|length == 3 %}
+
+    <!-- Festlegung der Bootstrap-Spaltengröße auf 4, um drei Elemente nebeneinander darzustellen -->
+    {% with col_size=4 %}
+
+        <!-- Erstellung einer Bootstrap-Zeile -->
+        <div class="row">
+
+            <!-- Schleife durch die drei Elemente der 'results'-Liste -->
+            {% for result in results %}
+
+                <!-- Erstellung einer Bootstrap-Spalte mit der festgelegten Spaltengröße -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Abstandhalter -->
+                    <p></p>
+
+                    <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Weitere Abstandhalter -->
+                    <p></p>
+
+                    <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Summary Plots -->
+                    <div class="card">
+
+                        <!-- Inhalt der Karte -->
+                        <div class="card-body">
+
+                            <!-- Untertitel der Karte -->
+                            <h5>SHAP Summary Plot Value</h5>
+
+                            <!-- Einbindung des SHAP Summary Plot-Bildes für das aktuelle Element -->
+                            <img src="{{ result.shap_summary_plot_value }}" id="image2" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Zeilenumbrüche und Abstandhalter -->
+                            <br>
+                            <p></p>
+                            <p></p>
+
+                            <!-- Download-Link für den SHAP Summary Plot, eingebettet in einen Button -->
+                            <a href="{{ result.shap_summary_plot_value }}" download class="btn btn-outline-primary btn-block">Export Summary Plot Value</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endwith %}
+{% endif %}
+
+<!-- Falls die 'results'-Liste genau 4 Elemente hat -->
+{% if results|length == 4 %}
+
+    <!-- Festlegung der Bootstrap-Spaltengröße auf 3, um vier Elemente nebeneinander darzustellen -->
+    {% with col_size=3 %}
+
+        <!-- Erstellung einer Bootstrap-Zeile -->
+        <div class="row">
+
+            <!-- Schleife durch die vier Elemente der 'results'-Liste -->
+            {% for result in results %}
+
+                <!-- Erstellung einer Bootstrap-Spalte mit der festgelegten Spaltengröße -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Abstandhalter -->
+                    <p></p>
+
+                    <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Weitere Abstandhalter -->
+                    <p></p>
+
+                    <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Summary Plots -->
+                    <div class="card">
+
+                        <!-- Inhalt der Karte -->
+                        <div class="card-body">
+
+                            <!-- Untertitel der Karte -->
+                            <h5>SHAP Summary Plot Value</h5>
+
+                            <!-- Einbindung des SHAP Summary Plot-Bildes für das aktuelle Element -->
+                            <img src="{{ result.shap_summary_plot_value }}" id="image2" class="img-fluid" data-image-alt="SHAP Summary Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Zeilenumbrüche und Abstandhalter -->
+                            <br>
+                            <p></p>
+                            <p></p>
+
+                            <!-- Download-Link für den SHAP Summary Plot, eingebettet in einen Button -->
+                            <a href="{{ result.shap_summary_plot_value }}" download class="btn btn-outline-primary btn-block">Export Summary Plot Value</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endwith %}
+{% endif %}
+{% endif %}
+{% endif %}
+
+
+<!-- Überschrift für den SHAP Dependence Plot-Bereich -->
+<h2 class="text-center">SHAP Dependence Plot - Scatterplot</h2>
+
+<!-- Button für weitere Informationen zum SHAP Dependence Plot -->
+<input class="btn btn-outline-info btn-block" type="button" id="dependence_scatter_info_button" value="Information about the Scatterplot (dependence plot)">
+
+<!-- Falls die 'results'-Liste genau ein Element hat -->
+{% if results|length == 1 %}
+
+    <!-- Festlegung der Bootstrap-Spaltengröße auf 12 für volle Breite -->
+    <div class="col-md-12">
+
+        <!-- Abstandhalter -->
+        <p></p>
+
+        <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+        <h2>{{ results.0.group_name }}</h2>
+
+        <!-- Weitere Abstandhalter -->
+        <p></p>
+
+        <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Dependence Plots -->
+        <div class="card">
+
+            <!-- Inhalt der Karte -->
+            <div class="card-body">
+
+                <!-- Untertitel der Karte -->
+                <h5>SHAP Dependence Plot</h5>
+
+                <!-- Einbindung des SHAP Dependence Plot-Bildes für das aktuelle Element -->
+                <img src="{{ results.0.shap_dependence_plot }}" id="image3" class="img-fluid" data-image-alt="SHAP Dependence Plot" data-group-name="{{ results.0.group_name }}" data-for-pdf="false">
+
+                <!-- Abstandhalter -->
+                <p></p>
+
+                <!-- Erstellung einer Formularzeile für den Download-Button -->
+                <div class="form-row">
+
+                    <!-- Festlegung der Bootstrap-Spaltengröße auf 6 und Textausrichtung auf links -->
+                    <div class="col-6 text-left">
+
+                        <!-- Download-Link für den SHAP Dependence Plot, eingebettet in einen Button -->
+                        <a href="{{ results.0.shap_dependence_plot }}" download class="btn btn-outline-primary btn-block">Export Dependence Plot</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Dieser Codeblock wird ausgeführt, wenn die 'results'-Liste genau zwei Elemente hat -->
+{% else %}
+    {% if results|length == 2 %}
+
+        <!-- Festlegung der Bootstrap-Spaltengröße auf 6, so dass zwei Karten nebeneinander passen -->
+        {% with col_size=6 %}
+
+            <!-- Erstellung einer neuen Zeile für die Bootstrap-Karten -->
+            <div class="row">
+
+                <!-- Durchlaufen der 'results'-Liste und Ausgabe der Ergebnisse -->
+                {% for result in results %}
+
+                    <!-- Festlegung der Bootstrap-Spaltengröße für die aktuelle Karte -->
+                    <div class="col-md-{{ col_size }}">
+
+                        <!-- Abstandhalter -->
+                        <p></p>
+
+                        <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+                        <h2>{{ result.group_name }}</h2>
+
+                        <!-- Weitere Abstandhalter -->
+                        <p></p>
+
+                        <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Dependence Plots -->
+                        <div class="card">
+
+                            <!-- Inhalt der Karte -->
+                            <div class="card-body">
+
+                                <!-- Untertitel der Karte -->
+                                <h5>SHAP Dependence Plot</h5>
+
+                                <!-- Einbindung des SHAP Dependence Plot-Bildes für das aktuelle Element -->
+                                <img src="{{ result.shap_dependence_plot }}" id="image3" class="img-fluid" data-image-alt="SHAP Dependence Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                                <!-- Abstandhalter -->
+                                <p></p>
+
+                                <!-- Erstellung einer Formularzeile für den Download-Button -->
+                                <div class="form-row">
+
+                                    <!-- Festlegung der Bootstrap-Spaltengröße auf 6 und Textausrichtung auf links -->
+                                    <div class="col-6 text-left">
+
+                                        <!-- Download-Link für den SHAP Dependence Plot, eingebettet in einen Button -->
+                                        <a href="{{ result.shap_dependence_plot }}" download class="btn btn-outline-primary btn-block">Export Dependence Plot</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        {% endwith %}
+ <!-- Dieser Codeblock wird ausgeführt, wenn die 'results'-Liste genau drei Elemente hat -->
+{% else %}
+{% if results|length == 3 %}
+
+    <!-- Festlegung der Bootstrap-Spaltengröße auf 4, so dass drei Karten nebeneinander passen -->
+    {% with col_size=4 %}
+
+        <!-- Erstellung einer neuen Zeile für die Bootstrap-Karten -->
+        <div class="row">
+
+            <!-- Durchlaufen der 'results'-Liste und Ausgabe der Ergebnisse -->
+            {% for result in results %}
+
+                <!-- Festlegung der Bootstrap-Spaltengröße für die aktuelle Karte -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Abstandhalter -->
+                    <p></p>
+
+                    <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Weitere Abstandhalter -->
+                    <p></p>
+
+                    <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Dependence Plots -->
+                    <div class="card">
+
+                        <!-- Inhalt der Karte -->
+                        <div class="card-body">
+
+                            <!-- Untertitel der Karte -->
+                            <h5>SHAP Dependence Plot</h5>
+
+                            <!-- Einbindung des SHAP Dependence Plot-Bildes für das aktuelle Element -->
+                            <img src="{{ result.shap_dependence_plot }}" id="image3" class="img-fluid" data-image-alt="SHAP Dependence Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Abstandhalter -->
+                            <p></p>
+
+                            <!-- Erstellung einer Formularzeile für den Download-Button -->
+                            <div class="form-row">
+
+                                <!-- Festlegung der Bootstrap-Spaltengröße auf 6 und Textausrichtung auf links -->
+                                <div class="col-6 text-left">
+
+                                    <!-- Download-Link für den SHAP Dependence Plot, eingebettet in einen Button -->
+                                    <a href="{{ result.shap_dependence_plot }}" download class="btn btn-outline-primary btn-block">Export Dependence Plot</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    {% endwith %}
+{% endif %}
+
+
+<!-- Dieser Codeblock wird ausgeführt, wenn die 'results'-Liste genau vier Elemente hat -->
+{% if results|length == 4 %}
+
+    <!-- Festlegung der Bootstrap-Spaltengröße auf 3, so dass vier Karten nebeneinander passen -->
+    {% with col_size=3 %}
+
+        <!-- Erstellung einer neuen Zeile für die Bootstrap-Karten -->
+        <div class="row">
+
+            <!-- Durchlaufen der 'results'-Liste und Ausgabe der Ergebnisse -->
+            {% for result in results %}
+
+                <!-- Festlegung der Bootstrap-Spaltengröße für die aktuelle Karte -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Abstandhalter -->
+                    <p></p>
+
+                    <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Weitere Abstandhalter -->
+                    <p></p>
+
+                    <!-- Erstellung einer Bootstrap-Karte für die Anzeige des SHAP Dependence Plots -->
+                    <div class="card">
+
+                        <!-- Inhalt der Karte -->
+                        <div class="card-body">
+
+                            <!-- Untertitel der Karte -->
+                            <h5>SHAP Dependence Plot</h5>
+
+                            <!-- Einbindung des SHAP Dependence Plot-Bildes für das aktuelle Element -->
+                            <img src="{{ result.shap_dependence_plot }}" id="image3" class="img-fluid" data-image-alt="SHAP Dependence Plot" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Abstandhalter -->
+                            <p></p>
+
+                            <!-- Erstellung einer Formularzeile für den Download-Button -->
+                            <div class="form-row">
+
+                                <!-- Festlegung der Bootstrap-Spaltengröße auf 6 und Textausrichtung auf links -->
+                                <div class="col-6 text-left">
+
+                                    <!-- Download-Link für den SHAP Dependence Plot, eingebettet in einen Button -->
+                                    <a href="{{ result.shap_dependence_plot }}" download class="btn btn-outline-primary btn-block">Export Dependence Plot</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    {% endwith %}
+
+{% endif %}
+{% endif %}
+{% endif %}
+
+
+<!-- Überschrift für den Abschnitt zur Konfusionsmatrix -->
+<h2 class="text-center">Confusion Matrix</h2>
+
+<!-- Button für Informationen zur Konfusionsmatrix -->
+<input class="btn btn-outline-info btn-block" type="button" id="confusion_matrix_info_button" value="Information about confusion matrices">
+
+<!-- Dieser Codeblock wird ausgeführt, wenn die 'results'-Liste genau ein Element enthält -->
+{% if results|length == 1 %}
+
+    <!-- Festlegung der Bootstrap-Spaltengröße auf 12, da es nur eine Karte gibt -->
+    <div class="col-md-12">
+
+        <!-- Abstandhalter -->
+        <p></p>
+
+        <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+        <h2>{{ results.0.group_name }}</h2>
+
+        <!-- Weitere Abstandhalter -->
+        <p></p>
+
+        <!-- Erstellung einer Bootstrap-Karte für die Anzeige der Konfusionsmatrix -->
+        <div class="card">
+
+            <!-- Inhalt der Karte -->
+            <div class="card-body">
+
+                <!-- Untertitel der Karte -->
+                <h5>Confusion Matrix</h5>
+
+                <!-- Einbindung des Konfusionsmatrix-Bildes für das aktuelle Element -->
+                <img src="{{ results.0.confusion_matrix }}" id="image4" class="img-fluid" data-image-alt="Confusion Matrix" data-group-name="{{ results.0.group_name }}" data-for-pdf="false">
+
+                <!-- Abstandhalter -->
+                <p></p>
+
+                <!-- Erstellung einer Formularzeile für den Download-Button -->
+                <div class="form-row">
+
+                    <!-- Festlegung der Bootstrap-Spaltengröße auf 6 und Textausrichtung auf links -->
+                    <div class="col-6 text-left">
+
+                        <!-- Download-Link für die Konfusionsmatrix, eingebettet in einen Button -->
+                        <a href="{{ results.0.confusion_matrix }}" download class="btn btn-outline-primary btn-block">Export Confusion Matrix</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Dieser Codeblock wird ausgeführt, wenn die 'results'-Liste genau zwei Elemente enthält -->
+{% else %}
+{% if results|length == 2 %}
+
+    <!-- Festlegung der Bootstrap-Spaltengröße auf 6, da es zwei Karten gibt -->
+    {% with col_size=6 %}
+
+        <!-- Erstellung einer Bootstrap-Reihe für die Karten -->
+        <div class="row">
+
+            <!-- Schleife, die für jedes Element in der 'results'-Liste durchläuft -->
+            {% for result in results %}
+
+                <!-- Festlegung der Bootstrap-Spaltengröße, die zuvor als 'col_size' definiert wurde -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Abstandhalter -->
+                    <p></p>
+
+                    <!-- Anzeige des Gruppennamens für das aktuelle Element -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Weitere Abstandhalter -->
+                    <p></p>
+
+                    <!-- Erstellung einer Bootstrap-Karte für die Anzeige der Konfusionsmatrix -->
+                    <div class="card">
+
+                        <!-- Inhalt der Karte -->
+                        <div class="card-body">
+
+                            <!-- Untertitel der Karte -->
+                            <h5>Confusion Matrix</h5>
+
+                            <!-- Einbindung des Konfusionsmatrix-Bildes für das aktuelle Element -->
+                            <img src="{{ result.confusion_matrix }}" id="image4" class="img-fluid" data-image-alt="Confusion Matrix" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Abstandhalter -->
+                            <p></p>
+
+                            <!-- Erstellung einer Formularzeile für den Download-Button -->
+                            <div class="form-row">
+
+                                <!-- Festlegung der Bootstrap-Spaltengröße auf 6 und Textausrichtung auf links -->
+                                <div class="col-6 text-left">
+
+                                    <!-- Download-Link für die Konfusionsmatrix, eingebettet in einen Button -->
+                                    <a href="{{ result.confusion_matrix }}" download class="btn btn-outline-primary btn-block">Export Confusion Matrix</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Schleifenende -->
+            {% endfor %}
+
+        </div>
+
+    <!-- Ende der Festlegung der Spaltengröße -->
+    {% endwith %}
+<!-- Dieser Block wird ausgeführt, wenn die Anzahl der Elemente in der 'results'-Liste genau 3 ist -->
+{% else %}
+{% if results|length == 3 %}
+
+    <!-- Die Spaltengröße für die Bootstrap-Karten wird auf 4 festgelegt, da es drei Karten gibt -->
+    {% with col_size=4 %}
+
+        <!-- Eröffnung einer neuen Bootstrap-Reihe -->
+        <div class="row">
+
+            <!-- Schleife über alle 'result'-Objekte in der 'results'-Liste -->
+            {% for result in results %}
+
+                <!-- Definiert eine Bootstrap-Spalte mit der festgelegten Spaltengröße -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Ein leerer Absatz für den Abstand -->
+                    <p></p>
+
+                    <!-- Überschrift 2 mit dem Gruppennamen aus dem aktuellen 'result'-Objekt -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Ein weiterer leerer Absatz für den Abstand -->
+                    <p></p>
+
+                    <!-- Eine Bootstrap-Karte zum Darstellen der Konfusionsmatrix -->
+                    <div class="card">
+
+                        <!-- Der Hauptinhalt der Karte -->
+                        <div class="card-body">
+
+                            <!-- Überschrift 5, die "Confusion Matrix" anzeigt -->
+                            <h5>Confusion Matrix</h5>
+
+                            <!-- Das Bild der Konfusionsmatrix für das aktuelle 'result'-Objekt -->
+                            <img src="{{ result.confusion_matrix }}" id="image4" class="img-fluid" data-image-alt="Confusion Matrix" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Ein leerer Absatz für den Abstand -->
+                            <p></p>
+
+                            <!-- Ein Container für Formularzeilen -->
+                            <div class="form-row">
+
+                                <!-- Eine Bootstrap-Spalte, die die Hälfte der Containerbreite einnimmt -->
+                                <div class="col-6 text-left">
+
+                                    <!-- Ein Download-Button zum Herunterladen der Konfusionsmatrix -->
+                                    <a href="{{ result.confusion_matrix }}" download class="btn btn-outline-primary btn-block">Export Confusion Matrix</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Ende der Schleife über 'results' -->
+            {% endfor %}
+
+        <!-- Schließung der Bootstrap-Reihe -->
+        </div>
+
+    <!-- Schließung des 'with'-Blocks, der die Spaltengröße festlegt -->
+    {% endwith %}
+<!-- Dieser Block wird ausgeführt, wenn die Anzahl der Elemente in der 'results'-Liste genau 4 ist -->
+{% if results|length == 4 %}
+
+    <!-- Die Spaltengröße für die Bootstrap-Karten wird auf 3 festgelegt, da es vier Karten gibt -->
+    {% with col_size=3 %}
+
+        <!-- Eröffnung einer neuen Bootstrap-Reihe -->
+        <div class="row">
+
+            <!-- Schleife über alle 'result'-Objekte in der 'results'-Liste -->
+            {% for result in results %}
+
+                <!-- Definiert eine Bootstrap-Spalte mit der festgelegten Spaltengröße -->
+                <div class="col-md-{{ col_size }}">
+
+                    <!-- Ein leerer Absatz für den Abstand -->
+                    <p></p>
+
+                    <!-- Überschrift 2 mit dem Gruppennamen aus dem aktuellen 'result'-Objekt -->
+                    <h2>{{ result.group_name }}</h2>
+
+                    <!-- Ein weiterer leerer Absatz für den Abstand -->
+                    <p></p>
+
+                    <!-- Eine Bootstrap-Karte zum Darstellen der Konfusionsmatrix -->
+                    <div class="card">
+
+                        <!-- Der Hauptinhalt der Karte -->
+                        <div class="card-body">
+
+                            <!-- Überschrift 5, die "Confusion Matrix" anzeigt -->
+                            <h5>Confusion Matrix</h5>
+
+                            <!-- Das Bild der Konfusionsmatrix für das aktuelle 'result'-Objekt -->
+                            <img src="{{ result.confusion_matrix }}" id="image4" class="img-fluid" data-image-alt="Confusion Matrix" data-group-name="{{ result.group_name }}" data-for-pdf="false">
+
+                            <!-- Ein leerer Absatz für den Abstand -->
+                            <p></p>
+
+                            <!-- Ein Container für Formularzeilen -->
+                            <div class="form-row">
+
+                                <!-- Ein Download-Button zum Herunterladen der Konfusionsmatrix -->
+                                <a href="{{ result.confusion_matrix }}" download class="btn btn-outline-primary btn-block">Export Confusion Matrix</a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Ende der Schleife über 'results' -->
+            {% endfor %}
+
+        <!-- Schließung der Bootstrap-Reihe -->
+        </div>
+
+    <!-- Schließung des 'with'-Blocks, der die Spaltengröße festlegt -->
+    {% endwith %}
+
+<!-- Schließung des 'if'-Blocks für die Bedingung der Länge von 'results' -->
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+
+
+<!-- Ein leerer Absatz für den Abstand -->
+<p></p>
+
+<!-- Ein horizontaler Trennstrich -->
+<hr>
+
+<!-- Mehrere Zeilenumbrüche für zusätzlichen Abstand -->
+<br>  <br />
+<br>  <br />
+
+<!-- Eine Bootstrap-Formularzeile mit ausgerichteten Elementen -->
+<div class="form-row justify-content-between">
+
+    <!-- Ein Rückkehr-Button, der zur 'xg_param'-URL mit verschiedenen Parametern navigiert -->
+    <a href="{% url 'xg_param' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&ai_method={{ai_method}}" class="btn btn-secondary">Return</a>
+
+    <!-- Ein Download-Button für den Bericht -->
+    <a href="/media/{{ report.report_file.name }}" download="{{ report.report_file.name }}" class="btn btn-outline-danger">Download Report</a>
+
+    <!-- Ein Button für die Unternehmenssuche -->
+    <button class="btn btn-primary" id="company-search-btn">Bankrupt Company Search</button>
+
+</div>
+
+<!-- Ein Container für einen Lade-Spinner, der zunächst ausgeblendet ist ('d-none') -->
+<div class="spinner-container d-none">
+
+    <!-- Der eigentliche Lade-Spinner -->
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+
+</div>
+
+<!-- Inline-Stile für den Lade-Spinner und seinen Container -->
+<style>
+    .spinner-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+</style>
+
+<!-- Weitere Zeilenumbrüche für zusätzlichen Abstand -->
+<br>  <br />
+<br>  <br />
+<br>  <br />
+<br>  <br />
+
+<!-- Importiere externe Bibliotheken -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Importiere den Tabulator-Stylesheet -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.9.3/css/tabulator.min.css" rel="stylesheet">
+
+<!-- Importiere die Tabulator-JavaScript-Bibliothek -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.9.3/js/tabulator.min.js"></script>
+
+<!-- Benutzerdefinierter JavaScript-Code -->
+<script>
+  function downloadPDF() {
+    // Holen Sie den Spinner-Container und entfernen Sie die Klasse 'd-none', um ihn anzuzeigen
+    var spinner = $('.spinner-container');
+    spinner.removeClass('d-none');
+
+    // Erstellen Sie ein neues PDF-Dokument mit jsPDF
+    var doc = new jsPDF();
+    var tablesForPDF = [];
+
+    // Holen Sie die Gesamttabelle und fügen Sie sie zu tablesForPDF hinzu
+    var overallTable = $('[data-group-name="Overall"]');
+    var overallTableHTML = "<h3>Overall</h3>" + overallTable[0].outerHTML;
+    tablesForPDF.push({ group_name: "Overall", table_html: overallTableHTML });
+
+    // Schleife durch die restlichen Tabellen und fügen Sie sie zu tablesForPDF hinzu
+    $('[data-group-name!="Overall"]').each(function() {
+      var groupName = $(this).data('group-name');
+      var tableHTML = "<h3>" + groupName + "</h3>" + $(this)[0].outerHTML;
+      tablesForPDF.push({ group_name: groupName, table_html: tableHTML });
+    });
+
+   // Durchläuft jedes Tabellenelement in tablesForPDF und fügt es dem PDF hinzu
+   var y = 20;  // Initialisiert die y-Koordinate für die Textplatzierung im PDF
+  for (var i = 0; i < tablesForPDF.length; i++) {  // Schleife durch das Array tablesForPDF
+    var table = tablesForPDF[i];  // Speichert das aktuelle Tabellenobjekt aus dem Array
+    var group_name = table.group_name;  // Speichert den Gruppennamen der aktuellen Tabelle
+    var table_html = table.table_html;  // Speichert das HTML der aktuellen Tabelle
+    console.log(table);  // Gibt das aktuelle Tabellenobjekt in der Konsole aus
+
+    doc.setFontSize(20);  // Setzt die Schriftgröße für den PDF-Text
+    doc.text(group_name, 14, y + 10);  // Fügt den Gruppennamen als Text im PDF hinzu
+    doc.setFontSize(12);  // Setzt die Schriftgröße zurück für weiteren Text
+    y += 20;  // Aktualisiert die y-Koordinate für die nächste Textplatzierung
+    console.log("y: " + y);  // Gibt die neue y-Koordinate in der Konsole aus
+
+    // Erstellt ein temporäres div-Element, um das HTML der Tabelle zu speichern
+    var tempDiv = document.createElement("div");
+    tempDiv.innerHTML = table_html;  // Setzt das HTML der aktuellen Tabelle in das temporäre div-Element
+    console.log("tempDiv");  // Gibt "tempDiv" in der Konsole aus
+
+    // Extrahiert alle Tabellenelemente aus dem temporären div-Element
+    var tableElements = tempDiv.querySelectorAll("table");
+    for (var t = 0; t < tableElements.length; t++) {  // Schleife durch alle gefundenen Tabellenelemente
+      var tableElement = tableElements[t];  // Speichert das aktuelle Tabellenelement
+      var rows = tableElement.rows;  // Speichert alle Zeilen des aktuellen Tabellenelements
+      var columns = [];  // Initialisiert ein leeres Array für die Spalten
+      var data = [];  // Initialisiert ein leeres Array für die Daten
+      console.log(  // Gibt die Werte in der Konsole aus
+        "tableElement: " + tableElement + " rows: " + rows + " columns: " + columns + " data: " + data
+      )
+      
+
+    // Spaltenüberschriften aus der ersten Zeile extrahieren
+    var headerRow = rows[0];
+    for (var j = 0; j < headerRow.cells.length; j++) {
+      columns.push(headerRow.cells[j].textContent.trim());  // Fügt den Text jeder Zelle zum Array "columns" hinzu
+      console.log("columns: " + columns);  // Zeigt die aktuellen Spaltenüberschriften im Konsolenlog an
+    }
+
+    // Datenzeilen extrahieren
+    for (var j = 1; j < rows.length; j++) {
+      var rowData = {};  // Ein leeres Objekt für die Daten der aktuellen Zeile
+      var row = rows[j];  // Die aktuelle Zeile der Tabelle
+      for (var k = 0; k < row.cells.length; k++) {
+        rowData[columns[k]] = row.cells[k].textContent.trim();  // Füllt "rowData" mit den Zelldaten
+        console.log("rowData: " + rowData);  // Zeigt die Daten der aktuellen Zeile im Konsolenlog an
+      }
+      data.push(rowData);  // Fügt das rowData-Objekt zum Datenarray hinzu
+    }
+
+
+      // Erstelle eine Tabulator-Instanz
+    var table = new Tabulator("#pdf-table", {
+      data: data,                      // Zu verwendende Daten
+      layout: "fitColumns",            // Layout-Option
+      columns: columns.map(function(c) {  // Spaltenüberschriften und Felder festlegen
+        return { title: c, field: c };
+      })
+    });
+
+    // Füge die Tabelle dem PDF hinzu
+    var colWidths = columns.map(function (c) {
+      return c.length * 7;  // Spaltenbreite basierend auf der Zeichenlänge anpassen
+    });
+
+    var rowHeights = data.map(function (row) {
+      return row.reduce(function (max, cell) {
+        var lines = doc.splitTextToSize(cell, colWidths[row.indexOf(cell)]);  // Text in Zellen aufteilen
+        return Math.max(max, lines.length * 6);  // Höhe der Zeilen anpassen
+      }, 0);
+    });
+
+// Berechnung der Gesamthöhe der Tabelle
+var tableHeight = rowHeights.reduce(function (sum, h) {
+  return sum + h;  // Summierung der einzelnen Zeilenhöhen
+}, 0) + rowHeights.length * 2;  // Zuzüglich der Anzahl der Zeilen mal 2 (für den Abstand)
+
+// PDF-Einstellungen für die Tabelle
+doc.setFontSize(12);             // Schriftgröße festlegen
+doc.setTextColor(51, 51, 51);    // Textfarbe festlegen
+doc.setFillColor(240, 240, 240); // Hintergrundfarbe der Tabelle festlegen
+
+// Zeichnet das Rechteck für die Tabelle
+doc.rect(
+  14,  // x-Position
+  y,   // y-Position
+  colWidths.reduce(function (sum, w) { // Gesamtbreite der Tabelle
+    return sum + w;
+  }, 0),
+  tableHeight,  // Höhe der Tabelle
+  "F"  // "F" steht für das Füllen des Rechtecks
+);
+
+y += 2;  // y-Position um 2 erhöhen
+
+// Durchläuft alle Spalten und fügt die Spaltenüberschriften dem PDF hinzu
+columns.forEach(function (c, i) {
+  doc.setFontType("bold");  // Fettdruck für Überschriften
+  doc.text(
+    c,  // Text der Überschrift
+    14 + colWidths.slice(0, i).reduce(function (sum, w) { // x-Position basierend auf der Summe der vorherigen Spaltenbreiten
+      return sum + w;
+    }, 0) + 2,
+    y + 6  // y-Position
+  );
+});
+
+// Einstellung der Schriftart auf normal
+doc.setFontType("normal");
+
+// Erhöhung der y-Position um 2
+y += 2;
+
+// Durchlaufen aller Datensätze in 'data'
+data.forEach(function (row, i) {
+  var x = 14; // Start x-Position für die Zelle
+  
+  // Durchlaufen aller Zellen in einer Zeile
+  row.forEach(function (cell, j) {
+    // Aufteilen des Textes in der Zelle, falls er zu lang ist
+    var lines = doc.splitTextToSize(cell, colWidths[j]);
+    
+    // Hinzufügen der einzelnen Zeilen des Zelltextes zum PDF
+    lines.forEach(function (line, k) {
+      doc.text(line, x + 2, y + 6 + k * 6);
+    });
+    
+    // x-Position für die nächste Zelle aktualisieren
+    x += colWidths[j];
+  });
+  
+  // y-Position für die nächste Zeile aktualisieren
+  y += rowHeights[i];
+});
+
+// Erhöhung der y-Position um 10 für eventuellen Abstand
+y += 10;
+
+// Überprüfung, ob ein neues PDF-Seite angefangen werden muss
+if (y + 20 > doc.internal.pageSize.height) {
+  // Neue Seite hinzufügen, falls der nächste Element nicht mehr passt
+  doc.addPage();
+  
+  // y-Position für die neue Seite zurücksetzen
+  y = 30;
+}
+
+// Hier schließen weitere Funktionen/Schleifen/Bedingungen, daher die schließenden Klammern
+}
+}
+
+// Speichern des PDFs mit dem Namen "model_report.pdf"
+doc.save("model_report.pdf");
+
+// Entfernen des Ladeindikators (Spinner)
+spinner.classList.add('d-none');
+
+}
+
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+  </script>
+
+<script>
+    // Fügt einen Event-Listener für den Klick auf den Button mit der ID "summary_bar_info_button" hinzu
+document.getElementById("summary_bar_info_button").addEventListener("click", function(event) {
+  // Verhindert das Standardverhalten des Browsers bei einem Klick-Event
+  event.preventDefault();
+  
+  // Informationsnachricht für den SHAP-Zusammenfassungs-Balkendiagramm
+  const infoMessage = "SHAP summary bar plot is a visualization tool that displays the feature importance values for all features, sorted by their absolute SHAP values. It is useful for identifying the most important features for the model's predictions and their direction of influence.";
+  
+  // Zeigt die Informationsnachricht in einem Alert-Fenster an
+  alert(infoMessage);
+});
+
+// Fügt einen Event-Listener für den Klick auf den Button mit der ID "summary_scatter_info_button" hinzu
+document.getElementById("summary_scatter_info_button").addEventListener("click", function(event) {
+  // Verhindert das Standardverhalten des Browsers bei einem Klick-Event
+  event.preventDefault();
+  
+  // Informationsnachricht für den SHAP-Zusammenfassungs-Streudiagramm
+  const infoMessage = "This type of plot in SHAP shows the distribution of feature importance values for each data point in a scatter plot, which can reveal complex relationships between features and their impact on the model's prediction.";
+  
+  // Zeigt die Informationsnachricht in einem Alert-Fenster an
+  alert(infoMessage);
+});
+
+// Fügt einen Event-Listener für den Klick auf den Button mit der ID "dependence_scatter_info_button" hinzu
+document.getElementById("dependence_scatter_info_button").addEventListener("click", function(event) {
+  // Verhindert das Standardverhalten des Browsers bei einem Klick-Event
+  event.preventDefault();
+  
+  // Informationsnachricht für den SHAP-Abhängigkeits-Streudiagramm
+  const infoMessage = "SHAP dependence scatter plot shows the relationship between a specific feature's values and its impact on the model's prediction. It can help to uncover non-linear relationships between the feature and the model output.";
+  
+  // Zeigt die Informationsnachricht in einem Alert-Fenster an
+  alert(infoMessage);
+});
+
+// Fügt einen Event-Listener für den Klick auf den Button mit der ID "confusion_matrix_info_button" hinzu
+document.getElementById("confusion_matrix_info_button").addEventListener("click", function(event) {
+  // Verhindert das Standardverhalten des Browsers bei einem Klick-Event
+  event.preventDefault();
+  
+  // Informationsnachricht für die Confusion Matrix
+  const infoMessage = "A confusion matrix is a table that summarizes the performance of a classification model by comparing the actual labels of a dataset with the predicted labels. It is useful for evaluating the accuracy, precision, recall, and F1-score of the model.";
+  
+  // Zeigt die Informationsnachricht in einem Alert-Fenster an
+  alert(infoMessage);
+});
+
+// Fügt einen Event-Listener für den Klick auf den Button mit der ID "xgb_feature_info_button" hinzu
+document.getElementById("xgb_feature_info_button").addEventListener("click", function(event) {
+  // Verhindert das Standardverhalten des Browsers bei einem Klick-Event
+  event.preventDefault();
+  
+  // Informationsnachricht für die XGBoost-Feature-Bedeutung
+  const infoMessage = "The built-in feature importance functions of xgboost allow users to gain insights into which features have the greatest impact on the model's predictions. The feature importance values are based on the number of times a feature is used to split the data across all trees, as well as the number of samples affected by those splits. The importance values can be used to identify the most influential features, and to help simplify the model by removing unimportant features. However, it is important to keep in mind that feature importance measures can sometimes be misleading or inconsistent, and should always be interpreted in the context of the specific model and data being analyzed.";
+  
+  // Zeigt die Informationsnachricht in einem Alert-Fenster an
+  alert(infoMessage);
+});
+
+// Fügt einen Event-Listener für den Klick auf den Button mit der ID "xgb_evaluation_info_button" hinzu
+document.getElementById("xgb_evaluation_info_button").addEventListener("click", function(event) {
+  // Verhindert das Standardverhalten des Browsers bei einem Klick-Event
+  event.preventDefault();
+  
+  // Informationsnachricht für die XGBoost-Modellbewertung
+  const infoMessage = "The presented table displays the scores of an XGBoost model, with each row representing a different group name. The six performance metrics included are:\n\
+        \u2022 Accuracy: proportion of correctly predicted observations out of total observations.\n\
+        \u2022 F1-score: harmonic mean of precision and recall, measures the trade-off between precision and recall.\n\
+        \u2022 Precision: proportion of true positives out of total predicted positives.\n\
+        \u2022 Brier-score: measures the accuracy of probabilistic predictions.\n\
+        \u2022 Recall: proportion of true positives out of total true positives.\n\
+        \u2022 ROC-AUC: area under the receiver operating characteristic curve, measures the ability to distinguish between classes.\n\n\
+        The table is ordered based on the group name's ascending order, and each metric is displayed in its own column. The first column provides row numbers to make it easier to locate a specific group name. The second column displays the group name. The third column displays the accuracy score. The fourth column displays the F1-score. The fifth column displays the precision score. The sixth column displays the Brier-score. The seventh column displays the recall score. The eighth column displays the ROC-AUC score.";
+  
+  // Zeigt die Informationsnachricht in einem Alert-Fenster an
+  alert(infoMessage);
+});
+
+// Fügt einen Event-Listener für den Klick auf den Button mit der ID "xgb_params_info_button" hinzu
+document.getElementById("xgb_params_info_button").addEventListener("click", function(event) {
+  // Verhindert das Standardverhalten des Browsers bei einem Klick-Event
+  event.preventDefault();
+  
+  // Informationsnachricht über die explizit eingestellten Hyperparameter während des XGBoost-Trainings
+  const infoMessage = "The following hyperparameters were explicitly set during XGBoost training: \n" +
+                      "- gamma: Minimum loss reduction required to make a further partition on a leaf node of the tree \n" +
+                      "- max_depth: Maximum tree depth. \n" +
+                      "- n_estimators: Number of boosted trees to fit. \n" +
+                      "- scale_pos_weight: Balancing of positive and negative weights. \n" +
+                      "- subsample: Subsample ratio of the training instance. \n" +
+                      "- colsample_bytree: Subsample ratio of columns when constructing each tree. \n" +
+                      "- min_child_weight: Minimum sum of instance weight (hessian) needed in a child. \n" +
+                      "- learning_rate: Boosting learning rate (shrinkage) \n" +
+                      "- objective: Specifies the learning objective of the XGBoost model (e.g. binary classification, regression). \n" +
+                      "- seed: Random number seed used to ensure reproducibility of the results. \n" +
+                      "- eval_metric: Metric used to evaluate the performance of the model during training (e.g. auc, error). \n" +
+                      "- booster: Specifies which booster to use (gbtree, gblinear, dart). \n" +
+                      "- grow_policy: Controls the tree expansion method (depthwise, lossguide). \n" +
+                      "- tree_method: Tree construction method (exact, approx, hist, gpu_hist). \n\n" +
+                      "All other hyperparameters were kept at their default values but included in the table to ensure full transparency.";
+  
+  // Zeigt die Informationsnachricht in einem Alert-Fenster an
+  alert(infoMessage);
+});
+
+  </script>
+    
+    <script>
+     // Fügt einen Event-Listener für den Klick auf den Button mit der ID "company-search-btn" hinzu
+document.getElementById("company-search-btn").addEventListener("click", function() {
+  // Setzt diverse Variablen mithilfe von Platzhaltern ({{ ... }}), die später serverseitig ersetzt werden sollten
+  const file = "{{ file }}";
+  const currentUser = "{{ current_user }}";
+  const numberOfGroups = "{{ number_of_groups }}";
+  const aiMethod = "{{ ai_method }}";
+  
+  // Erstellt die URL für die Suchseite, indem sie die oben definierten Variablen in die URL einfügt
+  const searchPageUrl = `/bankrupt_company_search/?file=${file}&current_user=${currentUser}&number_of_groups=${numberOfGroups}&ai_method=${aiMethod}`;
+  
+  // Leitet den Browser zur erstellten URL weiter
+  window.location.href = searchPageUrl;
+});
+
+      </script>
+      
+
+{%endblock%}

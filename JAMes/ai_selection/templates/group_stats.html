@@ -1,0 +1,90 @@
+{% extends 'users/navbar.html' %}  <!-- Erweitert die 'navbar.html' Vorlage -->
+
+{% block content %}  <!-- Beginn des Inhaltsblocks -->
+
+<!-- Fortschrittsbalken mit 70% Fortschritt -->
+<div class="progress">
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<!-- Überschrift -->
+<h1>Group Statistics</h1>
+
+<!-- Abstände -->
+<br>  <br />
+
+<!-- Benutzerinformationen -->
+<p><strong>User:</strong> {{ current_user }}</p>
+<p><strong>Number of Groups:</strong> {{ number_of_groups }}</p>
+<p><strong>AI Method:</strong> {{ ai_method }}</p>
+
+<!-- CSS für die Tabelle -->
+<style>
+    table thead tr
+    {
+        background-color: #343a40;
+        color: white;
+    }
+</style>
+
+<!-- CSS für den horizontalen Trennstrich -->
+<style>
+    hr {
+      border: 2px solid black; 
+      width: 100%; 
+    }
+</style>
+
+<!-- Schleife, die durch alle HTML-Tabellen in 'group_tables' iteriert -->
+{% for group_html_tables in group_tables %}
+
+    <!-- Fügt vertikale Abstände ein -->
+    <br>  <br />
+
+    <!-- Horizontale Linie -->
+    <hr>
+
+    <!-- Innere Schleife, die durch alle Tabellen im aktuellen 'group_html_tables' iteriert -->
+    {% for table in group_html_tables %}
+
+        <!-- Zeigt den ersten Wert des 'table'-Tupels als Überschrift an -->
+        <h4>{{ table.0 }}</h4>
+
+        <!-- Zeigt den zweiten Wert des 'table'-Tupels an und markiert ihn als sicher -->
+        {{ table.1|safe }}
+    {% endfor %}
+{% endfor %}
+
+<!-- Fügt vertikale Abstände ein -->
+<br> <br />
+<br> <br />
+
+
+<!-- Formularzeile mit zwei Spalten -->
+<div class="form-row">
+
+    <!-- Linke Spalte mit Textausrichtung nach links -->
+    <div class="col-6 text-left">
+
+        <!-- Link zum Zurückkehren zur AI-Auswahlseite, übermittelt verschiedene Variablen als URL-Parameter -->
+        <a href="{% url 'ai_selection' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&ai_method={{ai_method}}" class="btn btn-secondary">Return</a>
+    </div>
+
+    <!-- Rechte Spalte mit Textausrichtung nach rechts -->
+    <div class="col-6 text-right">
+
+        <!-- Bedingung, um den Fortsetzungslink je nach gewählter AI-Methode zu ändern -->
+        {% if ai_method == "xgboost" %}
+            <a href="{% url 'xg_param' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&ai_method={{ai_method}}" class="btn btn-primary">Continue</a>
+        {% elif ai_method == "neural_networks" %}
+            <a href="{% url 'nn_param' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&ai_method={{ai_method}}" class="btn btn-primary">Continue</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Fügt vertikale Abstände ein -->
+<br>  <br />
+<br>  <br />
+
+<!-- Schließt den Inhalt des Blocks -->
+{% endblock %}

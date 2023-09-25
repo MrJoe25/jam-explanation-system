@@ -1,0 +1,20 @@
+{% extends "users/base.html" %}  <!-- Erweitert das Basis-Template "users/base.html", das die allgemeine Struktur der Webseite festlegt. -->
+
+{% load crispy_forms_tags %}  <!-- Lädt das Crispy-Forms-Tag-Set, um Formulare stilvoll darzustellen. -->
+
+{% block content %}  <!-- Beginnt einen Block namens "content", der im Basis-Template definiert sein sollte. Dieser Block wird durch den folgenden HTML-Code ersetzt. -->
+
+    <div class="content-section">  <!-- Erstellt einen Div-Container mit der Klasse "content-section" für die Formatierung. -->
+        <form method="POST">  <!-- Beginnt ein HTML-Formular, das Daten per POST-Methode übermittelt. -->
+            {% csrf_token %}  <!-- Fügt ein CSRF-Token für die Sicherheit hinzu. -->
+            <fieldset class="form-group">  <!-- Erstellt ein Fieldset zur Gruppierung verwandter Formularelemente. -->
+                <legend class="border-bottom mb-4">Log In</legend>  <!-- Setzt eine Legende für das Fieldset. -->
+                {{ form|crispy }}  <!-- Rendert das Django-Formular und verwendet dabei das Crispy-Forms-Filter, um es schön zu gestalten. -->
+            </fieldset>
+            <div class="form-group">  <!-- Erstellt einen Div-Container mit der Klasse "form-group" für weitere Formatierung. -->
+                <button class="btn btn-outline-info" type="submit">Login</button>  <!-- Erstellt einen "Login"-Button. -->
+            </div>
+        </form>
+    </div>
+
+{% endblock %}  <!-- Beendet den "content"-Block. -->

@@ -1,0 +1,38 @@
+<!-- Erweitert das Navbar-Template -->
+{% extends "users/navbar.html" %}
+
+<!-- Beginnt den Inhalt-Block -->
+{% block content %}
+<!-- Fortschrittsbalken-Container -->
+<div class="progress">
+  <!-- Fortschrittsbalken mit 5% Füllung -->
+  <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 5%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<!-- Hauptinhalt-Container -->
+<div class="container mt-5">
+  <!-- Überschrift -->
+  <h1 class="text-center">Data Overview</h1>
+  <!-- Aufforderung zur Eingabe des Benutzernamens -->
+  <p class="text-center"><b>Please enter the name of the user:</b></p>
+  
+  <!-- Formular zur Eingabe des Benutzernamens -->
+  <form action="/data_overview/results/" method="get" class="form-inline d-flex justify-content-center">
+    <div class="form-group mb-2">
+      <!-- Textfeld für Benutzername -->
+      <input type="text" class="form-control border border-primary rounded-pill" name="user" placeholder="Username" required>
+    </div>
+    <!-- Submit-Button -->
+    <button type="submit" class="btn btn-primary mb-2">Submit</button>
+  </form>
+
+  <!-- Button, um zur persönlichen Upload-Seite zurückzukehren -->
+  <div class="text-center mt-5">
+    <form action="/personal_upload/" method="get">
+      <button type="submit" class="btn btn-secondary">Return to Personal Upload</button>
+    </form>
+  </div>
+
+</div>
+<!-- Schließt den Inhalt-Block -->
+{% endblock %}

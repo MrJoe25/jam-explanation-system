@@ -1,0 +1,548 @@
+<!-- Verlängerung des 'users/navbar.html'-Templates -->
+{% extends 'users/navbar.html' %}
+
+<!-- Laden des benutzerdefinierten Filters -->
+{% load custom_filter %}
+
+<!-- Beginn des Inhaltsblocks -->
+{% block content %}
+
+<!-- Wenn es eine Fehlermeldung gibt und keine Vorhersage vorliegt, wird ein Fehler-Alert angezeigt -->
+{% if error_message and not prediction %}
+    <div class="alert alert-danger mt-3" role="alert">
+        <!-- Anzeige der Fehlermeldung -->
+        {{ error_message }}
+    </div>
+{% endif %}
+
+<!-- Fortschrittsbalken-Container -->
+<div class="progress">
+    <!-- Fortschrittsbalken -->
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<!-- Container für den Hauptinhalt -->
+<div class="container mt-5">
+    <!-- Überschrift -->
+    <h1 class="text-center">Filter bankruptcy predictions for any company out of your test data set</h1>
+    <!-- Kartencontainer -->
+    <div class="card mt-5">
+        <!-- Kartenkörper -->
+        <div class="card-body">
+            <!-- Karteninhalt -->
+            <p class="card-text">Enter a company ID to filter the bankruptcy predictions table for that company based on the test data set.</p>
+        </div>
+    </div>
+
+      <!-- Beginn der Formulargruppe für das Filtereingabefeld -->
+<div class="form-group row mt-5">
+    <!-- Textfeld-Container -->
+    <div class="col-sm-10">
+        <!-- Textfeld zum Eingeben der Firmen-ID -->
+        <input type="text" id="filterInput" class="form-control" placeholder="Enter Company ID">
+    </div>
+    <!-- Button-Container -->
+    <div class="col-sm-2">
+        <!-- Button zum Ausführen der Filteraktion -->
+        <button id="filterButton" class="btn btn-primary btn-block">Filter</button>
+    </div>
+    <!-- Leerraum -->
+    <br>
+    <!-- Weiterer Leerraum -->
+    <br>
+</div>
+
+<!-- Beginn der zweiten Formulargruppe für zusätzliche Filteroptionen -->
+<div class="form-group row mt-5 justify-content-between">
+    <!-- Button-Container für 'Show Bankrupt Companies' -->
+    <div class="col-sm-4">
+        <!-- Button zum Anzeigen bankrotter Firmen -->
+        <button id="filterBankruptButton" class="btn btn-outline-primary btn-block">Show Bankrupt Companies</button>
+    </div>
+    <!-- Button-Container für 'Show Correct Bankruptcy Predictions' -->
+    <div class="col-sm-4">
+        <!-- Button zum Anzeigen korrekter Insolvenzprognosen -->
+        <button id="filterBankruptAndPredictedButton" class="btn btn-outline-primary btn-block">Show Correct Bankruptcy Predictions</button>
+    </div>
+    <!-- Button-Container für 'Show Predicted Bankrupt Companies' -->
+    <div class="col-sm-4">
+        <!-- Button zum Anzeigen der prognostizierten insolventen Firmen -->
+        <button id="filterPredictedBankruptButton" class="btn btn-outline-primary btn-block">Show Predicted Bankrupt Companies</button>
+    </div>
+</div>
+      
+      <!-- Beginn der Formulargruppe für den 'Remove Filters' Button -->
+<div class="form-group row mt-5">
+    <!-- Button zum Entfernen aller Filter -->
+    <button type="button" class="btn btn-secondary btn-block" id="removeFilterButton">Remove Filters</button>
+</div>
+
+<!-- Überschrift für die Bankrottprognosentabelle -->
+<h3 class="mt-5">Bankruptcy Predictions:</h3>
+
+<!-- Container für eine scrollbar-fähige Tabelle -->
+<div class="table-responsive">
+    <!-- Die eigentliche Tabelle mit der ID 'companyTable' -->
+    <table id="companyTable" class="table table-hover table-striped table-dark mt-3">
+        <!-- Tabellenkopf -->
+        <thead>
+            <!-- Kopfzeile der Tabelle -->
+            <tr>
+                <!-- Überschrift für die Gruppenspalte -->
+                <th>Group</th>
+                <!-- Überschrift für die Spalte der Firmen-ID -->
+                <th>Company ID</th>
+                <!-- Überschrift für die Spalte der vorhergesagten Bankrotts -->
+                <th>Predicted Bankruptcy</th>
+                <!-- Überschrift für die Spalte der tatsächlichen Bankrotts -->
+                <th>Actual Bankruptcy</th>
+
+                <!-- Django-Template-Logik zum Iterieren durch alle Schlüssel und Werte des ersten Elements der 'rows' Liste -->
+                {% for key, value in rows.0.items %}
+                    <!-- Django-Template-Bedingung, um bestimmte Schlüssel auszuschließen -->
+                    {% if key not in 'Company_ID,Prediction,Insolvenz(t0)' %}
+                        <!-- Erstellung einer neuen Spaltenüberschrift basierend auf dem Schlüssel -->
+                        <th>{{ key }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+
+              <!-- Beginn des Tabellenkörpers -->
+<tbody>
+    <!-- Django-Template-Logik, um durch alle Zeilen der 'rows' Liste zu iterieren -->
+    {% for row in rows %}
+        <!-- Erstellen einer neuen Zeile für jede Iteration -->
+        <tr>
+            <!-- Gruppenname aus dem aktuellen Zeilenobjekt -->
+            <td>{{ row.Group_Name }}</td>
+            <!-- Firmen-ID aus dem aktuellen Zeilenobjekt -->
+            <td>{{ row.Company_ID }}</td>
+            <!-- Vorhersage der Insolvenz, falls 'Prediction' gleich 1 ist, wird 'yes' ausgegeben, sonst 'no' -->
+            <td>{% if row.Prediction == 1 %}yes{% else %}no{% endif %}</td>
+            <!-- Tatsächliche Insolvenz, falls 'Insolvenz' gleich 1 ist, wird 'yes' ausgegeben, sonst 'no' -->
+            <td>{% if row.Insolvenz == 1 %}yes{% else %}no{% endif %}</td>
+            
+            <!-- Django-Template-Logik zum Iterieren durch alle Schlüssel und Werte des aktuellen Zeilenobjekts -->
+            {% for key, value in row.items %}
+                <!-- Bedingung, um bestimmte Schlüssel auszuschließen -->
+                {% if key not in 'Company_ID,Prediction,Insolvenz(t0)' %}
+                    <!-- Anzeige des Wertes in einer neuen Tabellenzelle -->
+                    <td>{{ value }}</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</tbody>
+<!-- Ende der Tabelle -->
+</table>
+
+<!-- Container für die Pagination -->
+<div class="mt-4 d-flex justify-content-center">
+    <!-- Navigationsmenü für die Seitenzahlen -->
+    <nav aria-label="Page navigation">
+        <!-- Ungeordnete Liste für die Pagination -->
+        <ul class="pagination">
+            <!-- Bedingung, um zu überprüfen, ob eine vorherige Seite existiert -->
+            {% if rows.has_previous %}
+                <!-- Aktivierung des 'First' Links, falls eine vorherige Seite existiert -->
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&file={{ file }}&current_user={{ current_user }}&number_of_groups={{ number_of_groups }}&ai_method={{ ai_method }}" aria-label="First">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <!-- Deaktivierung des 'First' Links, falls keine vorherige Seite existiert -->
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            {% endif %}
+
+            
+                    <!-- Django-Template-Logik, um durch den gesamten Seitenbereich des Paginators zu iterieren -->
+{% for i in rows.paginator.page_range %}
+<!-- Überprüfen, ob die aktuelle Seite der Paginators der Iterationsvariablen entspricht -->
+{% if rows.number == i %}
+    <!-- Markieren der aktiven Seite -->
+    <li class="page-item active">
+        <span class="page-link">{{ i }}</span>
+    </li>
+<!-- Überprüfen, ob die aktuelle Seitenzahl im Bereich von fünf Seiten vor und nach der aktuellen Seite liegt -->
+{% elif i >= rows.number|add:"-5" and i <= rows.number|add:"5" %}
+    <!-- Erstellen eines Links zur jeweiligen Seite -->
+    <li class="page-item">
+        <a class="page-link" href="?page={{ i }}&file={{ file }}&current_user={{ current_user }}&number_of_groups={{ number_of_groups }}&ai_method={{ ai_method }}">{{ i }}</a>
+    </li>
+{% endif %}
+{% endfor %}
+
+<!-- Überprüfen, ob es eine nächste Seite gibt -->
+{% if rows.has_next %}
+<!-- Erstellen eines Links zur letzten Seite, wenn es eine nächste Seite gibt -->
+<li class="page-item">
+    <a class="page-link" href="?page={{ rows.paginator.num_pages }}&file={{ file }}&current_user={{ current_user }}&number_of_groups={{ number_of_groups }}&ai_method={{ ai_method }}" aria-label="Last">
+        <span aria-hidden="true">&raquo;</span>
+    </a>
+</li>
+{% else %}
+<!-- Deaktivieren des Links zur letzten Seite, wenn es keine nächste Seite gibt -->
+<li class="page-item disabled">
+    <span class="page-link">&raquo;</span>
+</li>
+{% endif %}
+</ul>
+<!-- Ende der Navigationsleiste für die Seitenzahlen -->
+</nav>
+</div>
+<!-- Ende des Containers für die Tabelle und die Pagination -->
+</div>
+<!-- Ende des Hauptcontainers -->
+</div>
+<!-- Leerraum am Ende der Seite -->
+<br>  <br />
+<br>  <br />
+
+            <!-- Container für Navigationsbuttons am unteren Ende der Seite -->
+<div class="form-row justify-content-between">
+    <!-- Link zum Zurückkehren zur vorherigen Seite -->
+    <div class="col-4 text-left">
+        <a href="{% url 'xgexplain' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&ai_method={{ai_method}}" class="btn btn-secondary">Return</a>
+    </div>
+    <!-- Link zum Herunterladen der Daten im CSV-Format -->
+    <div class="col-4 text-center">
+        <a href="{% url 'bankrupt_company_search:save_predictions_to_csv' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&ai_method={{ai_method}}" class="btn btn-outline-success">Download CSV</a>
+    </div>
+    <!-- Link zum Speichern der Ergebnisse in der persönlichen Übersicht -->
+    <div class="col-4 text-right">
+        <a href="{% url 'personal_dashboard' %}" class="btn btn-primary">Save to Personal Overview</a>
+    </div>
+</div>
+<!-- Leerraum am Ende der Seite -->
+<br>  <br />
+<br>  <br />
+<!-- Beendigung des content Blocks -->
+{% endblock %}
+        
+    
+// Dieser Block wird ausgeführt, sobald das DOM vollständig geladen ist
+{% block scripts %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Event-Listener für den Klick auf den Filter-Button
+        document.getElementById('filterButton').addEventListener('click', function() {
+            // Ausgabe einer Debug-Nachricht in der Konsole
+            console.log('filterButton clicked');
+            
+            // Einlesen des eingegebenen Filter-Texts und Entfernen von Leerzeichen am Anfang und Ende
+            const filterInput = document.getElementById('filterInput').value.trim();
+
+            // Einlesen der Django-Template-Variablen und Speichern als JavaScript-Variablen
+            const file = '{{ file }}';
+            const current_user = '{{ current_user }}';
+            const number_of_groups = '{{ number_of_groups }}';
+            const ai_method = '{{ ai_method }}';
+
+
+                // Prüfen, ob ein Filtertext eingegeben wurde
+                if (filterInput) {
+                // Verstecken der Paginierung beim Filtern
+                document.querySelector('.pagination').style.display = 'none';
+
+                // Durchführen eines AJAX-Requests an den Server, um gefilterte Daten zu erhalten
+                fetch(`/bankrupt_company_search/filter_company?company_id=${filterInput}&file=${file}&current_user=${current_user}&number_of_groups=${number_of_groups}&ai_method=${ai_method}`)
+                    .then(response => {
+                        // Prüfen, ob die HTTP-Antwort OK ist
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        // JSON-Antwort des Servers parsen
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Referenz auf die Tabelle und deren tbody holen
+                        const table = document.getElementById('companyTable');
+                        const tbody = table.querySelector('tbody');
+                        // Vorhandenen Inhalt des tbody leeren
+                        tbody.innerHTML = '';
+
+                        // Durchgehen der zurückgegebenen Zeilen und Hinzufügen zur Tabelle
+                        data.rows.forEach(row => {
+                            // Erstellen einer neuen Zeile (tr)
+                            const tr = document.createElement('tr');
+
+                            // Erstellen und Befüllen der Zelle für den Gruppennamen
+                            const tdGroupName = document.createElement('td');
+                            tdGroupName.innerText = row.Group_Name;
+                            // Hinzufügen der Zelle zur Zeile
+                            tr.appendChild(tdGroupName);
+
+                            // Erstellen und Befüllen der Zelle für die Unternehmens-ID
+                            const tdCompanyID = document.createElement('td');
+                            tdCompanyID.innerText = row.Company_ID;
+                            // Hinzufügen der Zelle zur Zeile
+                            tr.appendChild(tdCompanyID);
+
+
+                                // Erstellen und Befüllen der Zelle für die vorhergesagte Insolvenz
+            const tdPrediction = document.createElement('td');
+            tdPrediction.innerText = row.Prediction === 1 ? 'yes' : 'no';
+            // Hinzufügen der Zelle zur Zeile
+            tr.appendChild(tdPrediction);
+
+            // Erstellen und Befüllen der Zelle für die tatsächliche Insolvenz
+            const tdActual = document.createElement('td');
+            tdActual.innerText = row.Insolvenz === 1 ? 'yes' : 'no';
+            // Hinzufügen der Zelle zur Zeile
+            tr.appendChild(tdActual);
+
+            // Durchgehen der Merkmalswerte in der Zeile
+            Object.entries(row).forEach(([key, value]) => {
+                // Wir überspringen die Schlüssel 'Company_ID', 'Prediction', 'Insolvenz' und 'Group'
+                if (key !== 'Company_ID' && key !== 'Prediction' && key !== 'Insolvenz' && key !== 'Group') {
+                    // Erstellen einer neuen Zelle für das Merkmal
+                    const tdFeature = document.createElement('td');
+                    tdFeature.innerText = value;
+                    // Hinzufügen der Zelle zur Zeile
+                    tr.appendChild(tdFeature);
+                }
+            });
+
+            // Hinzufügen der vollständigen Zeile zum tbody der Tabelle
+            tbody.appendChild(tr);
+        });
+    })
+    .catch(error => {
+        // Fehlerbehandlung für den Fall, dass der AJAX-Aufruf fehlschlägt
+        console.error('Error fetching data:', error);
+    });
+    // wenn keine Filtereinstellung vorhanden ist
+    } else {
+        // Zeige die Pagination wenn nicht gefiltert wird
+        document.querySelector('.pagination').style.display = 'block';
+        // Seite neu laden
+        window.location.reload();
+    }
+});
+
+
+// Event-Listener für den Button, der Bankrottunternehmen filtert
+document.getElementById('filterBankruptButton').addEventListener('click', function() {
+    // Auslesen der Django Template Variablen
+    const file = '{{ file }}';
+    const current_user = '{{ current_user }}';
+    const number_of_groups = '{{ number_of_groups }}';
+    const ai_method = '{{ ai_method }}';
+
+    // Basis-URL zum Abrufen der gefilterten bankrotten Unternehmen
+    const baseUrl = `/bankrupt_company_search/filter_bankrupt?file=${file}&current_user=${current_user}&number_of_groups=${number_of_groups}&ai_method=${ai_method}`;
+
+    // AJAX-Aufruf
+    fetch(`${baseUrl}&page=1`)
+        .then(response => response.json())
+        .then(data => {
+            // Tabelle und tbody selektieren
+            const table = document.getElementById('companyTable');
+            const tbody = table.querySelector('tbody');
+            // tbody leeren
+            tbody.innerHTML = '';
+
+            // Verstecken der ursprünglichen Pagination beim Filtern
+document.querySelector('.pagination:not(.filtered)').style.display = 'none';
+
+// Füllen der Tabelle mit den gefilterten Daten
+data.rows.forEach(row => {
+    // Erstellen einer neuen Zeile
+    const tr = document.createElement('tr');
+
+    // Gruppenname
+    const tdGroup = document.createElement('td');
+    tdGroup.innerText = row.Group_Name;
+    tr.appendChild(tdGroup);
+
+    // Unternehmens-ID
+    const tdCompanyID = document.createElement('td');
+    tdCompanyID.innerText = row.Company_ID;
+    tr.appendChild(tdCompanyID);
+
+    // Vorhergesagte Insolvenz
+    const tdPrediction = document.createElement('td');
+    tdPrediction.innerText = row.Prediction === 1 ? 'yes' : 'no';
+    tr.appendChild(tdPrediction);
+
+    // Tatsächliche Insolvenz
+    const tdActual = document.createElement('td');
+    tdActual.innerText = row['Insolvenz(t0)'] === 1 ? 'yes' : 'no';
+    tr.appendChild(tdActual);
+
+    // Werte für weitere Features
+    Object.entries(row).forEach(([key, value]) => {
+        // Überprüfen, ob der Schlüssel nicht einer der ausgeschlossenen ist
+        if (key !== 'Group' && key !== 'Company_ID' && key !== 'Prediction' && key !== 'Insolvenz(t0)') {
+            const tdFeature = document.createElement('td');
+            tdFeature.innerText = value;
+            tr.appendChild(tdFeature);
+        }
+    });
+
+    // Hinzufügen der neuen Zeile zum tbody
+    tbody.appendChild(tr);
+});
+
+            // Verstecken der ursprünglichen Pagination beim Filtern
+            document.querySelector('.pagination:not(.filtered)').style.display = 'none';
+        });
+});
+
+
+
+
+// Event-Listener für den 'Filter Predicted Bankrupt' Button
+document.getElementById('filterPredictedBankruptButton').addEventListener('click', function() {
+    // Variablen für die Anfrage definieren
+    const file = '{{ file }}';
+    const current_user = '{{ current_user }}';
+    const number_of_groups = '{{ number_of_groups }}';
+    const ai_method = '{{ ai_method }}';
+    const page = 1; // Erste Seite als Standard
+
+    // Daten per Fetch-API anfragen
+    fetch(`/bankrupt_company_search/filter_predicted_bankrupt?file=${file}&current_user=${current_user}&number_of_groups=${number_of_groups}&ai_method=${ai_method}&page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            // Tabelle und tbody-Element referenzieren
+            const table = document.getElementById('companyTable');
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = ''; // Inhalt von tbody löschen
+
+            // Verstecken der ursprünglichen Paginierung beim Filtern
+            document.querySelector('.pagination:not(.filtered)').style.display = 'none';
+
+            // Durchläuft jede Zeile im empfangenen Datensatz
+data.rows.forEach(row => {
+    // Erstellt ein neues Tabellenzeilen-Element
+    const tr = document.createElement('tr');
+
+    // Erstellt und fügt die Zelle für 'Group' hinzu
+    const tdGroup = document.createElement('td');
+    tdGroup.innerText = row.Group_Name;
+    tr.appendChild(tdGroup);
+
+    // Erstellt und fügt die Zelle für 'Company ID' hinzu
+    const tdCompanyID = document.createElement('td');
+    tdCompanyID.innerText = row.Company_ID;
+    tr.appendChild(tdCompanyID);
+
+    // Erstellt und fügt die Zelle für 'Predicted Bankruptcy' hinzu
+    const tdPrediction = document.createElement('td');
+    tdPrediction.innerText = row.Prediction === 1 ? 'yes' : 'no';
+    tr.appendChild(tdPrediction);
+
+    // Erstellt und fügt die Zelle für 'Actual Bankruptcy' hinzu
+    const tdActual = document.createElement('td');
+    tdActual.innerText = row['Insolvenz(t0)'] === 1 ? 'yes' : 'no';
+    tr.appendChild(tdActual);
+
+    // Durchläuft alle Schlüssel-Wert-Paare in der Zeile
+    Object.entries(row).forEach(([key, value]) => {
+        // Fügt nur Werte hinzu, die nicht zu den festgelegten Schlüsseln gehören
+        if (key !== 'group' && key !== 'Company_ID' && key !== 'Prediction' && key !== 'Insolvenz(t0)') {
+            const tdFeature = document.createElement('td');
+            tdFeature.innerText = value;
+            tr.appendChild(tdFeature);
+        }
+    });
+
+    // Fügt die vollständige Zeile zum tbody-Element hinzu
+    tbody.appendChild(tr);
+});
+
+// Versteckt die Pagination beim Filtern
+document.querySelector('.pagination').style.display = 'none';
+});
+});
+
+// EventListener für den Button 'Filter Bankrupt and Predicted'
+document.getElementById('filterBankruptAndPredictedButton').addEventListener('click', function() {
+    // Deklaration der Konstanten, die Werte aus dem HTML-Dokument abrufen
+    const file = '{{ file }}';
+    const current_user = '{{ current_user }}';
+    const number_of_groups = '{{ number_of_groups }}';
+    const ai_method = '{{ ai_method }}';
+    const page = 1;
+
+    // Fetch-Aufruf an den Server, um gefilterte Daten abzurufen
+    fetch(`/bankrupt_company_search/filter_bankrupt_and_predicted?file=${file}&current_user=${current_user}&number_of_groups=${number_of_groups}&ai_method=${ai_method}&page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            // Identifiziert das HTML-Tabellenelement und dessen tbody
+            const table = document.getElementById('companyTable');
+            const tbody = table.querySelector('tbody');
+
+            // Leert den aktuellen Inhalt des tbody
+            tbody.innerHTML = '';
+
+            // Versteckt die Pagination, wenn gefiltert wird
+            document.querySelector('.pagination:not(.filtered)').style.display = 'none';
+
+            // Iteration durch alle Zeilen in den empfangenen Daten
+data.rows.forEach(row => {
+    // Erstellung eines neuen Tabellenzeilen-Elements
+    const tr = document.createElement('tr');
+
+    // Erstellung und Hinzufügen der Zelle für die Gruppe
+    const tdGroup = document.createElement('td');
+    tdGroup.innerText = row.Group_Name;
+    tr.appendChild(tdGroup);
+
+    // Erstellung und Hinzufügen der Zelle für die Unternehmens-ID
+    const tdCompanyID = document.createElement('td');
+    tdCompanyID.innerText = row.Company_ID;
+    tr.appendChild(tdCompanyID);
+
+    // Erstellung und Hinzufügen der Zelle für die vorhergesagte Insolvenz
+    const tdPrediction = document.createElement('td');
+    tdPrediction.innerText = row.Prediction === 1 ? 'yes' : 'no';
+    tr.appendChild(tdPrediction);
+
+    // Erstellung und Hinzufügen der Zelle für die tatsächliche Insolvenz
+    const tdActual = document.createElement('td');
+    tdActual.innerText = row['Insolvenz(t0)'] === 1 ? 'yes' : 'no';
+    tr.appendChild(tdActual);
+
+    // Erstellung und Hinzufügen der Zellen für die Merkmalswerte
+    Object.entries(row).forEach(([key, value]) => {
+        if (key !== 'group' && key !== 'Company_ID' && key !== 'Prediction' && key !== 'Insolvenz(t0)') {
+            const tdFeature = document.createElement('td');
+            tdFeature.innerText = value;
+            tr.appendChild(tdFeature);
+        }
+    });
+
+    // Hinzufügen der kompletten Zeile zum tbody-Element
+    tbody.appendChild(tr);
+});
+
+// Verstecken der Paginierung, wenn gefiltert wird
+document.querySelector('.pagination').style.display = 'none';
+
+});
+});
+
+
+
+// Event-Listener für den 'Filter entfernen'-Button
+document.getElementById('removeFilterButton').addEventListener('click', function() {
+    // Aktualisieren der Seite, um den Filter zu entfernen und die ursprüngliche Paginierung anzuzeigen
+    window.location.reload();
+});
+});
+
+
+
+
+
+</script>
+    
+    {% endblock %}
+    

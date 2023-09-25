@@ -1,0 +1,152 @@
+{% extends "users/navbar.html" %} <!-- Erweitere das Navbar-Template -->
+{% block content %} <!-- Beginne den Inhaltsblock -->
+<!-- Fortschrittsleiste -->
+<div class="progress">
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+  
+<h2>Data Cleaning</h2> <!-- Überschrift für Data Cleaning -->
+<br>  <br />
+<!-- Button zum Starten der Datenbereinigung -->
+<div class="center">
+    <a href="{% url 'cleaned_data' %}?file={{file}}&current_user={{current_user}}" class="btn btn-primary btn-spinner" data-spinner-container=".spinner-container" data-spinner-class="spinner-border spinner-border-sm" data-spinner-text="Clean Data">Clean Data</a>
+</div>
+
+<!-- Trennlinie -->
+<hr>
+<!-- Erläuterungen zum Datenbereinigungsprozess -->
+<p>The cleaning process for CSV files in the Django web application is as follows:</p>
+<ol>
+    <li>Locate rows with Insolvenz equal to 1 and propagate the value to the next row if the Company_ID is the same. Often times, the information for the balance sheet data is missing in the year of the bankruptcy. That is why we set the Bankruptcy one year earlier.</li>
+    <li>Convert the data types of the Jahr and Company_ID columns to integer and int64, respectively.</li>
+    <li>Calculate the Gesamtvermoegen by adding Anlagevermoegen and Umlaufvermoegen columns.</li>
+    <li>Compute the Anlagenintensitaet and Umlaufintensitaet by dividing Anlagevermoegen and Umlaufvermoegen by Gesamtvermoegen, respectively.</li>
+    <li>Calculate the STDR (Short-term Debt Ratio) by dividing kurzfristigeVerbindlichkeiten by Bilanzsumme.</li>
+    <li>Separate the DataFrame into two: one containing companies with Insolvenz and the other without.</li>
+    <li>Sort both DataFrames by Company_ID and Jahr in ascending and descending order, respectively, and reset their indices.</li>
+    <li>In the DataFrame with insolvent companies, remove rows above 1 for bankrupt companies to retain only the data until bankruptcy.</li>
+    <li>Merge both DataFrames back together and sort the merged DataFrame by Company_ID and Jahr in ascending and descending order, respectively. Reset the index of the merged DataFrame.</li>
+    <li>Perform data cleaning by removing missing values for specific columns such as Anlagevermoegen, Umlaufvermoegen, Bilanzsumme, Eigenkapital, kurzfristigeVerbindlichkeiten, and JahresueberschussFehlbetrag.</li>
+    <li>Remove negative values for columns like Bilanzsumme, Anlagenintensitaet, Umlaufintensitaet, and STDR.</li>
+</ol>
+<p>After these steps, the cleaned data is returned for further processing or analysis.</p>
+<!-- Trennlinie -->
+<hr>
+<!-- Leerer Absatz für zusätzlichen Raum -->
+<p><br></p>
+<!-- Zusätzlicher Raum -->
+<br>  <br />
+<br>  <br />
+
+<!-- Zeile für den Zurück-Button -->
+<div class="form-row">
+    <!-- Links ausgerichtete Spalte -->
+    <div class="col-6 text-left">
+        <!-- Zurück-Button, der den Benutzer zur CSV-Ergebnisseite führt -->
+        <a href="{% url 'results_csv' %}?file={{file}}&current_user={{current_user}}" class="btn btn-secondary">Return</a>
+    </div>
+    <!-- Zusätzlicher Raum -->
+    <br>  <br />
+    <br>  <br />
+</div>
+
+<!-- Container für den Lade-Indikator (Spinner), standardmäßig ausgeblendet -->
+<div class="spinner-container d-none">
+    <!-- Lade-Indikator (Spinner) -->
+    <div class="spinner-border text-primary" role="status">
+        <!-- Nur für Screenreader sichtbarer Text -->
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+
+<style>
+/* Styles für den Spinner-Container */
+.spinner-container {
+    /* Die Position ist fest und überlagert den gesamten Viewport */
+    position: fixed;
+    /* Von oben nach unten und von links nach rechts ausgerichtet */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Halbtransparenter schwarzer Hintergrund */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Hohe z-Index-Wert, damit der Spinner über anderen Elementen erscheint */
+    z-index: 9999;
+    /* Flex-Container für zentrierte Ausrichtung des Spinners */
+    display: flex;
+    /* Horizontal zentriert */
+    justify-content: center;
+    /* Vertikal zentriert */
+    align-items: center;
+}
+
+/* Styles für den Spinner selbst */
+.spinner-border {
+    /* Größe des Spinners */
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+</style>
+<script>
+    // Funktion zum Anzeigen des Spinners wird definiert
+function showSpinner(button) {
+    // Spinner-Container und Spinner-Klasse werden aus den Data-Attributen des Buttons geholt
+    var container = button.dataset.spinnerContainer;
+    var spinner = button.dataset.spinnerClass;
+
+    // Button wird deaktiviert und der Spinner wird hinzugefügt
+    button.disabled = true;
+    button.innerHTML = '<span class="' + spinner + '" role="status" aria-hidden="true"></span> Loading...';
+
+    // Spinner-Container wird angezeigt
+    document.querySelector(container).classList.remove('d-none');
+
+    // Event-Listener wird zum Window-Objekt hinzugefügt, um festzustellen, wann die nächste Seite geladen ist
+    window.addEventListener('DOMContentLoaded', function() {
+        // Spinner-Container wird wieder versteckt
+        document.querySelector(container).classList.add('d-none');
+        // Button wird wieder aktiviert und der ursprüngliche Text wird wiederhergestellt
+        button.disabled = false;
+        button.innerHTML = button.dataset.spinnerText;
+    }, {once: true});
+
+        // Event-Listener zum Window-Objekt hinzufügen, um festzustellen, wann der Benutzer zur vorherigen Seite zurückkehrt
+window.addEventListener('pageshow', function(event) {
+    // Überprüfen, ob der Button deaktiviert ist, und den ursprünglichen Text wiederherstellen
+    if (button.disabled) {
+        button.disabled = false;
+        button.innerHTML = button.dataset.spinnerText;
+        // Spinner-Container ausblenden
+        document.querySelector(container).classList.add('d-none');
+    }
+});
+}
+// Event-Listener zu allen Spinner-Buttons hinzufügen
+var spinnerButtons = document.querySelectorAll('.btn-primary');
+spinnerButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+        // Spinner anzeigen, wenn der Button geklickt wird
+        showSpinner(button);
+    });
+});
+
+// Event-Listener zum Window-Objekt hinzufügen, um festzustellen, wann der Benutzer die Seite verlässt
+window.addEventListener('beforeunload', function() {
+    // Spinner-Container ausblenden und alle Buttons auf ihren ursprünglichen Text zurücksetzen
+    var spinnerContainers = document.querySelectorAll('.spinner-container');
+    spinnerContainers.forEach(function(container) {
+        container.classList.add('d-none');
+    });
+    var spinnerButtons = document.querySelectorAll('.btn-primary');
+    spinnerButtons.forEach(function(button) {
+        button.disabled = false;
+        button.innerHTML = button.dataset.spinnerText;
+    });
+});
+
+</script>
+    
+    {% endblock %}

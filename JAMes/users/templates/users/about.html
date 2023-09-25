@@ -1,0 +1,15 @@
+{% extends "users/navbar.html" %}  <!-- Erbt von einem übergeordneten Template namens "navbar.html" im Ordner "users" -->
+{% block content %}  <!-- Beginn eines Blocks namens "content", der im übergeordneten Template definiert sein sollte -->
+
+    <h1>Information about us:</h1>  <!-- Überschrift der Seite -->
+    <p>Our team consists of 2 students from the Georg-August-Universität Göttingen.</p>  <!-- Ein Absatz, der Informationen über das Team enthält -->
+    <p>We are working on the project "JAM Explanation System" as part of the course "Projektstudium" at the Chair of Application Systems and E-Business.</p>  <!-- Ein weiterer Absatz mit zusätzlichen Informationen -->
+    <P>Our team consists of:</P>  <!-- Ein weiterer Absatz, der die Teammitglieder auflistet. Beachten Sie, dass das P-Tags hier großgeschrieben ist, was zwar funktioniert, aber inkonsistent ist -->
+    <ul>  <!-- Ungeordnete Liste -->
+        <li>Micha Teweleit</li>  <!-- Listenelement -->
+        <li>Joachim von Alvensleben</li>  <!-- Ein weiteres Listenelement -->
+    </ul>
+    <br> <br />  <!-- Zeilenumbrüche für Abstand -->
+    <p>2023</p>  <!-- Ein Absatz, der das Jahr angibt -->
+
+{% endblock %}  <!-- Ende des "content"-Blocks -->

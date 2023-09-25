@@ -1,0 +1,20 @@
+<!-- Erweitert das Navbar-Template -->
+{% extends 'users/navbar.html' %}
+
+<!-- Beginnt den Inhalt-Block -->
+{% block content %}
+<!-- Prüft, ob eine Informationsmeldung vorhanden ist -->
+{% if infoMessage %}
+    <!-- Zeigt eine gefährliche (rote) Alarmmeldung an -->
+    <div class="alert alert-danger" role="alert">
+        <!-- Gibt die Informationsmeldung aus -->
+        {{ infoMessage }}
+    </div>
+{% endif %}
+<!-- Container für den Hauptinhalt -->
+<div class="container mt-5">
+    <!-- Navigationslink zum Zurückgehen -->
+    <p class="text-center"><a href="{% url 'xgexplain' %}" class="btn btn-primary">Go Back</a></p>
+</div>
+<!-- Schließt den Inhalt-Block -->
+{% endblock %}

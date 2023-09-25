@@ -1,0 +1,421 @@
+{% extends "users/navbar.html" %} <!-- Erweitert das Grundgerüst der Seite um die Navbar von "users/navbar.html" -->
+{% block content %} <!-- Beginnt den Inhaltsbereich der Seite -->
+  
+<div class="progress"> <!-- Erzeugt eine Fortschrittsleiste -->
+    <!-- Setzt die Eigenschaften der Fortschrittsleiste; aktuell bei 30% -->
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<div class="container mt-5"> <!-- Erzeugt einen Container für den Hauptinhalt, mit oberem Abstand (mt-5) -->
+    <h1>Select Features</h1> <!-- Überschrift -->
+    <form method="post"> <!-- Beginnt ein Formular für die POST-Methode -->
+        {% csrf_token %} <!-- Fügt ein CSRF-Token hinzu, um die Sicherheit zu gewährleisten -->
+        {% if error_message %} <!-- Prüft, ob eine Fehlermeldung vorhanden ist -->
+        <!-- Zeigt die Fehlermeldung in einem roten Alert-Feld an -->
+        <div class="alert alert-danger" role="alert">
+            {{ error_message }}
+        </div>
+        {% endif %}
+        <div class="row"> <!-- Erzeugt eine Zeile für die Buttons -->
+            <div class="col-md-6"> <!-- Erzeugt eine Spalte, die die Hälfte (6 von 12) des Grids einnimmt -->
+                <div class="card h-100"> <!-- Erzeugt eine Karte, die die volle Höhe einnimmt -->
+                    <div class="card-body"> <!-- Inhalt der Karte -->
+                        <div class="form-row"> <!-- Erzeugt eine Zeile innerhalb des Formulars -->
+                        <!-- Erzeugt eine Spalte, die die Hälfte der Formularzeile einnimmt -->
+                        <div class="form-group col-md-6">
+                        <!-- Fügt einen Button hinzu, um alle Features auszuwählen -->
+                        <button type="button" id="select-all" class="btn btn-outline-primary">Select All</button>
+                        </div>
+                        <!-- Erzeugt eine Spalte, die die andere Hälfte der Formularzeile einnimmt und den Inhalt rechtsbündig ausrichtet -->
+                        <div class="form-group col-md-6 text-right">
+                        <!-- Fügt einen Button hinzu, um alle Features abzuwählen -->
+                        <button type="button" id="deselect-all" class="btn btn-outline-danger">Deselect All</button>
+                        </div>
+                        </div>
+
+        <!-- Beginnt eine neue Formularzeile für die Option "Equity Ratio" -->
+<div class="form-row">
+    <!-- Erstellt eine Formulargruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Container für das Checkbox-Element -->
+        <div class="form-check">
+            <!-- Checkbox für "Equity Ratio"; wird aktiviert, falls der entsprechende Wert im Formular gesetzt ist -->
+            <input class="form-check-input" type="checkbox" name="equity_ratio" id="equity_ratio" {% if form.equity_ratio.value %}checked{% endif %}>
+            <!-- Label für die Checkbox "Equity Ratio" -->
+            <label class="form-check-label" for="equity_ratio">Equity Ratio</label>
+        </div>
+    </div>
+</div>
+
+<!-- Beginnt eine neue Formularzeile für die Option "Working Capital Ratio" -->
+<div class="form-row">
+    <!-- Erstellt eine Formulargruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Container für das Checkbox-Element -->
+        <div class="form-check">
+            <!-- Checkbox für "Working Capital Ratio"; wird aktiviert, falls der entsprechende Wert im Formular gesetzt ist -->
+            <input class="form-check-input" type="checkbox" name="working_capital_ratio" id="working_capital_ratio" {% if form.working_capital_ratio.value %}checked{% endif %}>
+            <!-- Label für die Checkbox "Working Capital Ratio" -->
+            <label class="form-check-label" for="working_capital_ratio">Working Capital Ratio</label>
+        </div>
+    </div>
+</div>
+
+<!-- Beginnt eine neue Formularzeile für die Option "Return on Total Assets" -->
+<div class="form-row">
+    <!-- Erstellt eine Formulargruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Container für das Checkbox-Element -->
+        <div class="form-check">
+            <!-- Checkbox für "Return on Total Assets"; wird aktiviert, falls der entsprechende Wert im Formular gesetzt ist -->
+            <input class="form-check-input" type="checkbox" name="return_on_total_assets" id="return_on_total_assets" {% if form.return_on_total_assets.value %}checked{% endif %}>
+            <!-- Label für die Checkbox "Return on Total Assets" -->
+            <label class="form-check-label" for="return_on_total_assets">Return on Total Assets</label>
+        </div>
+    </div>
+</div>
+
+<!-- Beginnt eine neue Formularzeile für die Option "Return on Equity" -->
+<div class="form-row">
+    <!-- Erstellt eine Formulargruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Container für das Checkbox-Element -->
+        <div class="form-check">
+            <!-- Checkbox für "Return on Equity"; wird aktiviert, falls der entsprechende Wert im Formular gesetzt ist -->
+            <input class="form-check-input" type="checkbox" name="return_on_equity" id="return_on_equity" {% if form.return_on_equity.value %}checked{% endif %}>
+            <!-- Label für die Checkbox "Return on Equity" -->
+            <label class="form-check-label" for="return_on_equity">Return on Equity</label>
+        </div>
+    </div>
+</div>
+
+        <!-- Beginnt eine neue Formularzeile für die Option "Asset Coverage Ratio" -->
+<div class="form-row">
+    <!-- Erstellt eine Formulargruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Container für das Checkbox-Element -->
+        <div class="form-check">
+            <!-- Checkbox für "Asset Coverage Ratio"; wird aktiviert, falls der entsprechende Wert im Formular gesetzt ist -->
+            <input class="form-check-input" type="checkbox" name="asset_coverage_ratio" id="asset_coverage_ratio" {% if form.asset_coverage_ratio.value %}checked{% endif %}>
+            <!-- Label für die Checkbox "Asset Coverage Ratio" -->
+            <label class="form-check-label" for="asset_coverage_ratio">Asset Coverage Ratio</label>
+        </div>
+    </div>
+</div>
+
+<!-- Beginnt eine neue Formularzeile für die Option "Second-Degree Liquidity" -->
+<div class="form-row">
+    <!-- Erstellt eine Formulargruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Container für das Checkbox-Element -->
+        <div class="form-check">
+            <!-- Checkbox für "Second-Degree Liquidity"; wird aktiviert, falls der entsprechende Wert im Formular gesetzt ist -->
+            <input class="form-check-input" type="checkbox" name="second_degree_liquidity" id="second_degree_liquidity" {% if form.second_degree_liquidity.value %}checked{% endif %}>
+            <!-- Label für die Checkbox "Second-Degree Liquidity" -->
+            <label class="form-check-label" for="second_degree_liquidity">Second-Degree Liquidity</label>
+        </div>
+    </div>
+</div>
+
+<!-- Beginnt eine neue Formularzeile für die Option "Short-term Debt Ratio" -->
+<div class="form-row">
+    <!-- Erstellt eine Formulargruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Container für das Checkbox-Element -->
+        <div class="form-check">
+            <!-- Checkbox für "Short-term Debt Ratio"; wird aktiviert, falls der entsprechende Wert im Formular gesetzt ist -->
+            <input class="form-check-input" type="checkbox" name="short_term_debt_ratio" id="short_term_debt_ratio" {% if form.short_term_debt_ratio.value %}checked{% endif %}>
+            <!-- Label für die Checkbox "Short-term Debt Ratio" -->
+            <label class="form-check-label" for="short_term_debt_ratio">Short-term Debt Ratio</label>
+        </div>
+    </div>
+</div>
+
+</div> <!-- Schließt den äußeren Container -->
+</div> <!-- Schließt den äußeren Container (scheint ein überflüssiges div zu sein) -->
+
+<br> <!-- Fügt einen Zeilenumbruch hinzu -->
+<br> <!-- Fügt einen weiteren Zeilenumbruch hinzu -->
+<br> <!-- Fügt einen dritten Zeilenumbruch hinzu -->
+
+        <!-- Beginnt eine Spalte für den Rückkehr-Button, die die Hälfte (col-6) des verfügbaren Raums einnimmt -->
+<div class="col-6 text-left">
+    <!-- Erstellt einen Button, der den Benutzer zur "cleaned_data"-Seite führt. URL-Parameter für die Datei und den aktuellen Benutzer werden angehängt -->
+    <a href="{% url 'cleaned_data' %}?file={{old_file}}&current_user={{current_user}}" class="btn btn-secondary">Return</a>
+</div>
+</div> <!-- Schließt den äußeren Container -->
+
+<!-- Beginnt eine neue Spalte, die die Hälfte (col-md-6) des verfügbaren Raums einnimmt -->
+<div class="col-md-6">
+    <!-- Erstellt eine Karte, die die gesamte verfügbare Höhe einnimmt -->
+    <div class="card h-100">
+        <!-- Hauptbereich der Karte -->
+        <div class="card-body">
+            <!-- Beginnt eine Formularzeile für den "Information about the equity ratio"-Button -->
+            <div class="form-row">
+                <!-- Erstellt eine Formular-Gruppe, die die gesamte Breite (col-12) einnimmt -->
+                <div class="form-group col-12">
+                    <!-- Button für Informationen zur Eigenkapitalquote -->
+                    <input class="btn btn-outline-info" type="button" id="equity_ratio_info_button" value="Information about the equity ratio">
+                </div>
+            </div>
+            
+            <!-- Beginnt eine weitere Formularzeile für den "Information about the working capital ratio"-Button -->
+            <div class="form-row">
+                <!-- Erstellt eine Formular-Gruppe, die die gesamte Breite (col-12) einnimmt -->
+                <div class="form-group col-12">
+                    <!-- Button für Informationen zur Working-Capital-Quote -->
+                    <input class="btn btn-outline-info" type="button" id="working_capital_ratio_info_button" value="Information about the working capital ratio">
+                </div>
+            </div>
+        <!-- Beginnt eine Formularzeile für den "Information about the return on total assets"-Button -->
+<div class="form-row">
+    <!-- Erstellt eine Formular-Gruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Button für Informationen zur Gesamtvermögensrendite -->
+        <input class="btn btn-outline-info" type="button" id="return_on_total_assets_info_button" value="Information about the return on total assets">
+    </div>
+</div>
+
+<!-- Beginnt eine weitere Formularzeile für den "Information about the return on equity"-Button -->
+<div class="form-row">
+    <!-- Erstellt eine Formular-Gruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Button für Informationen zur Eigenkapitalrendite -->
+        <input class="btn btn-outline-info" type="button" id="return_on_equity_info_button" value="Information about the return on equity">
+    </div>
+</div>
+
+<!-- Beginnt eine weitere Formularzeile für den "Information about the asset coverage ratio"-Button -->
+<div class="form-row">
+    <!-- Erstellt eine Formular-Gruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Button für Informationen zur Vermögensdeckungsquote -->
+        <input class="btn btn-outline-info" type="button" id="asset_coverage_ratio_info_button" value="Information about the asset coverage ratio">
+    </div>
+</div>
+
+        <!-- Beginnt eine Formularzeile für den "Information about the second-degree liquidity"-Button -->
+<div class="form-row">
+    <!-- Erstellt eine Formular-Gruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Button für Informationen zur Liquidität zweiten Grades -->
+        <input class="btn btn-outline-info" type="button" id="second_degree_liquidity_info_button" value="Information about the second-degree liquidity">
+    </div>
+</div>
+
+<!-- Beginnt eine weitere Formularzeile für den "Information about the short-term debt ratio"-Button -->
+<div class="form-row">
+    <!-- Erstellt eine Formular-Gruppe, die die gesamte Breite (col-12) einnimmt -->
+    <div class="form-group col-12">
+        <!-- Button für Informationen zur kurzfristigen Verschuldungsquote -->
+        <input class="btn btn-outline-info" type="button" id="short_term_debt_ratio_info_button" value="Information about the short-term debt ratio">
+    </div>
+</div>
+
+<!-- Schließt die vorherigen HTML-Container -->
+</div>
+</div>
+
+<!-- Fügt Platz am Ende des Formulars hinzu -->
+<br>
+<br>
+<br>
+
+<!-- Beginnt eine neue Spalte für den "Continue"-Button und mögliche Fehlermeldungen -->
+<div class="col-6 text-right">
+    <!-- Bedingte Anweisung für das Anzeigen einer Fehlermeldung, falls weniger als 3 Merkmale ausgewählt wurden -->
+    {% if total_checked < 3 %}
+    <div class="text-danger">Please select at least 3 features before continuing</div>
+    {% endif %}
+    <!-- "Continue"-Button, der deaktiviert ist, wenn weniger als 3 Merkmale ausgewählt wurden -->
+    <button id="continue-btn" type="submit" class="btn btn-primary" {% if total_checked < 3 %}disabled{% endif %}>Continue</button>
+</div>
+
+<!-- Schließt das Formular -->
+</form>
+<!-- Schließt den Container -->
+</div>
+
+<!-- Container für den Lade-Spinner, der standardmäßig nicht angezeigt wird (d-none) -->
+<div class="spinner-container d-none">
+    <!-- Spinner-Element mit der Farbe "primary" und einer Rolle als Statusanzeige -->
+    <div class="spinner-border text-primary" role="status">
+        <!-- Text nur für Screenreader zugänglich, um anzuzeigen, dass geladen wird -->
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- Inline-CSS-Definitionen für den Spinner-Container und das Spinner-Element -->
+<style>
+    /* Definiert den Spinner-Container als fixiertes Element, das den gesamten Bildschirm einnimmt */
+    .spinner-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* Hintergrundfarbe mit 50% Transparenz */
+        background-color: rgba(0, 0, 0, 0.5);
+        /* z-index zur Überlagerung anderer Elemente */
+        z-index: 9999;
+        /* Zentriert den inneren Spinner sowohl horizontal als auch vertikal */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    /* Definiert die Breite und Höhe des Spinner-Elements */
+    .spinner-border {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+// Warte, bis das gesamte HTML-Dokument geladen ist
+$(document).ready(function() {
+    // Hole den "Weiter"-Button mit der ID 'continue-btn'
+    var continueBtn = $('#continue-btn');
+    
+    // Überprüfe, ob die Seite aus dem Cache geladen wurde oder ein frisches Laden ist
+    if (performance.navigation.type == 2) {
+        // Entferne das 'disabled'-Attribut vom "Weiter"-Button
+        continueBtn.prop('disabled', false);
+        // Verstecke den Spinner, indem die Klasse 'd-none' hinzugefügt wird
+        $('.spinner-container').addClass('d-none');
+    }
+    
+    // Füge einen Klick-Event-Listener zum "Weiter"-Button hinzu
+    continueBtn.click(function(e) {
+        // Verhindere das Standardverhalten des Klick-Events
+        e.preventDefault();
+        
+        // Hole das nächstgelegene Formularelement
+        var form = $(this).closest('form');
+        
+        // Erstelle einen Spinner mit einem Text
+        var spinner = '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span> Loading...';
+  
+        // Deaktiviere den "Weiter"-Button und füge den Spinner hinzu
+        $(this).prop('disabled', true);
+        $(this).html(spinner);
+  
+        // Zeige den Spinner an, indem die Klasse 'd-none' entfernt wird
+        $('.spinner-container').removeClass('d-none');
+
+        // Sende das Formular nach 1 Sekunde ab, um den Spinner anzuzeigen
+        setTimeout(function() {
+            form.submit();
+        }, 1000);
+    });
+});
+
+</script>
+    
+<script>
+    // Füge einen Event-Listener zum Element mit der ID "select-all" hinzu, der auf Klick-Events reagiert
+document.getElementById("select-all").addEventListener("click", function() {
+    // Hole alle Checkboxen im Dokument
+    let checkboxes = document.querySelectorAll("input[type='checkbox']");
+    // Durchlaufe alle gefundenen Checkboxen
+    for (let i = 0; i < checkboxes.length; i++) {
+        // Setze jede Checkbox auf den Zustand "ausgewählt" (checked)
+        checkboxes[i].checked = true;
+    }
+});
+
+// Füge einen Event-Listener zum Element mit der ID "deselect-all" hinzu, der auf Klick-Events reagiert
+document.getElementById("deselect-all").addEventListener("click", function() {
+    // Hole alle Checkboxen im Dokument
+    let checkboxes = document.querySelectorAll("input[type='checkbox']");
+    // Durchlaufe alle gefundenen Checkboxen
+    for (let i = 0; i < checkboxes.length; i++) {
+        // Setze jede Checkbox auf den Zustand "nicht ausgewählt" (unchecked)
+        checkboxes[i].checked = false;
+    }
+});
+
+// Event-Listener für den Klick auf den Button mit der ID "equity_ratio_info_button"
+document.getElementById("equity_ratio_info_button").addEventListener("click", function(event) {
+    // Verhindere das Standardverhalten des Events (z.B. das Absenden eines Formulars)
+    event.preventDefault();
+    // Info-Nachricht für den "equity_ratio"
+    const infoMessage = "The equity ratio is calculated by dividing a company's total equity by its total assets. The result is expressed as a percentage, with higher values indicating a larger proportion of equity financing and greater financial stability.";
+    // Zeige die Info-Nachricht in einem Alert-Fenster an
+    alert(infoMessage);
+});
+
+// Event-Listener für den Klick auf den Button mit der ID "working_capital_ratio_info_button"
+document.getElementById("working_capital_ratio_info_button").addEventListener("click", function(event) {
+    // Verhindere das Standardverhalten des Events (z.B. das Absenden eines Formulars)
+    event.preventDefault();
+    // Info-Nachricht für den "working capital ratio"
+    const infoMessage = "The working capital ratio is calculated by dividing a company's current assets by its current liabilities. The result is a ratio that indicates a company's ability to meet short-term obligations. A ratio of 1 or greater is generally considered favorable.";
+    // Zeige die Info-Nachricht in einem Alert-Fenster an
+    alert(infoMessage);
+});
+
+// Event-Listener für den Klick auf den Button mit der ID "return_on_total_assets_info_button"
+document.getElementById("return_on_total_assets_info_button").addEventListener("click", function(event) {
+    // Verhindere das Standardverhalten des Events (z.B. das Absenden eines Formulars)
+    event.preventDefault();
+    // Info-Nachricht für den "return on total assets"
+    const infoMessage = "The return on total assets is calculated by dividing a company's net income by its total assets. The result is expressed as a percentage, with higher values indicating greater profitability and efficiency in using assets to generate income.";
+    // Zeige die Info-Nachricht in einem Alert-Fenster an
+    alert(infoMessage);
+});
+
+// Event-Listener für den Klick auf den Button mit der ID "return_on_equity_info_button"
+document.getElementById("return_on_equity_info_button").addEventListener("click", function(event) {
+    // Verhindere das Standardverhalten des Events (z.B. das Absenden eines Formulars)
+    event.preventDefault();
+    // Info-Nachricht für den "return on equity"
+    const infoMessage = "The return on equity is calculated by dividing a company's net income by its shareholders' equity. The result is expressed as a percentage, with higher values indicating greater profitability and efficiency in using equity to generate income.";
+    // Zeige die Info-Nachricht in einem Alert-Fenster an
+    alert(infoMessage);
+});
+
+// Event-Listener für den Klick auf den Button mit der ID "asset_coverage_ratio_info_button"
+document.getElementById("asset_coverage_ratio_info_button").addEventListener("click", function(event) {
+    // Verhindere das Standardverhalten des Events (z.B. das Absenden eines Formulars)
+    event.preventDefault();
+    // Info-Nachricht für den "asset coverage ratio"
+    const infoMessage = "The asset coverage ratio is calculated by dividing a company's total assets by its total liabilities. The result indicates the degree to which a company's assets cover its debt obligations. Higher values indicate greater financial stability and lower financial risk.";
+    // Zeige die Info-Nachricht in einem Alert-Fenster an
+    alert(infoMessage);
+});
+
+// Event-Listener für den Klick auf den Button mit der ID "second_degree_liquidity_info_button"
+document.getElementById("second_degree_liquidity_info_button").addEventListener("click", function(event) {
+    // Verhindere das Standardverhalten des Events (z.B. das Absenden eines Formulars)
+    event.preventDefault();
+    // Info-Nachricht für den "second-degree liquidity"
+    const infoMessage = "The second-degree liquidity, or cash conversion cycle, is calculated by adding the number of days it takes a company to sell inventory to the number of days it takes to collect accounts receivable, and then subtracting the number of days it takes to pay accounts payable. The result indicates the length of time it takes a company to convert its resources into cash flow, with shorter cycles indicating greater financial efficiency.";
+    // Zeige die Info-Nachricht in einem Alert-Fenster an
+    alert(infoMessage);
+});
+
+// Event-Listener für den Klick auf den Button mit der ID "short_term_debt_ratio_info_button"
+document.getElementById("short_term_debt_ratio_info_button").addEventListener("click", function(event) {
+    // Verhindere das Standardverhalten des Events (z.B. das Absenden eines Formulars)
+    event.preventDefault();
+    // Info-Nachricht für den "short-term debt ratio"
+    const infoMessage = "The short-term debt ratio is calculated by dividing a company's short-term debt by its total assets. The result is expressed as a percentage, with higher values indicating greater short-term financial risk.";
+    // Zeige die Info-Nachricht in einem Alert-Fenster an
+    alert(infoMessage);
+});
+
+</script>
+
+
+
+
+
+
+
+
+
+  
+  {% endblock %}

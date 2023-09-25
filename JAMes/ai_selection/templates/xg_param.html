@@ -1,0 +1,380 @@
+<!-- Erweitert das 'navbar.html'-Template für die Benutzernavigation -->
+{% extends 'users/navbar.html' %}
+
+<!-- Beginnt den Inhalt-Block -->
+{% block content %}
+
+<!-- Fortschrittsanzeige -->
+<div class="progress">
+
+    <!-- Fortschrittsbalken mit 75% Füllstand -->
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<!-- Überschrift -->
+<h1>XGBoost Parameters</h1>
+
+<!-- Formular mit POST-Methode und Auslösen der showSpinner()-Funktion beim Absenden -->
+<form method="post" onsubmit="showSpinner()">
+
+    <!-- CSRF-Token für Sicherheit -->
+    {% csrf_token %}
+
+    <!-- Schleife durch alle Gruppen -->
+    {% for group in groups %}
+    <br>
+
+    <!-- Formulargruppe -->
+    <div class="form-group">
+
+        <!-- Gruppenname als Überschrift -->
+        <h2>{{ group.group_name }}</h2>
+
+        <!-- Bedingung für Bayesianische Optimierung -->
+        {% if group.bayesian_optimization == 'yes' %}
+
+        <!-- Informationstext, wenn Bayesianische Optimierung aktiv ist -->
+        <p>Bayesian optimization is being performed for this group, so no parameters can be chosen manually.</p>
+
+        <!-- Bedingung für den Fall, dass Bayesianische Optimierung nicht aktiv ist -->
+{% else %}
+
+<!-- Formularzeile für den Learning rate Parameter -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Learning rate" -->
+    <div class="col-4 text-left">
+        <label for="learning_rate_{{ forloop.counter }}">Learning rate</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zum "Learning rate" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="learningRateButton_{{ forloop.counter }}">What is a learning rate?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Learning rate" -->
+    <div class="col-4 text-left">
+        <input type="number" step="0.01" class="form-control border border-primary rounded-pill" id="learning_rate_{{ forloop.counter }}" placeholder="Learning rate" value="0.300000012" name="learning_rate_{{ group.id }}">
+    </div>
+</div>
+
+<!-- Formularzeile für den Max depth Parameter -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Max depth" -->
+    <div class="col-4 text-left">
+        <label for="max_depth_{{ forloop.counter }}">Max depth</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zum "Max depth" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="maxDepthButton_{{ forloop.counter }}">What is a max depth?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Max depth" -->
+    <div class="col-4 text-left">
+        <input type="number" step="1" class="form-control border border-primary rounded-pill" id="max_depth_{{ forloop.counter }}" placeholder="Max depth" value="6" name="max_depth_{{ group.id }}">
+    </div>
+</div>
+        <!-- Formularzeile für den Parameter "Number of estimators" -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Number of estimators" -->
+    <div class="col-4 text-left">
+        <label for="n_estimators_{{ forloop.counter }}">Number of estimators</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zum "Number of estimators" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="nEstimatorsButton_{{ forloop.counter }}">What is the number of estimators?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Number of estimators" -->
+    <div class="col-4 text-left">
+        <input type="number" step="1" class="form-control border border-primary rounded-pill" id="n_estimators_{{ forloop.counter }}" placeholder="Number of estimators" value="100" name="n_estimators_{{ group.id }}">
+    </div>
+</div>
+
+<!-- Formularzeile für den Parameter "Min Child Weight" -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Min Child Weight" -->
+    <div class="col-4 text-left">
+        <label for="min_child_weight_{{ forloop.counter }}">Min Child Weight</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zum "Min Child Weight" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="minChildWeightButton_{{ forloop.counter }}">What is the min child weight?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Min Child Weight" -->
+    <div class="col-4 text-left">
+        <input type="number" step="0.1" class="form-control border border-primary rounded-pill" id="min_child_weight_{{ forloop.counter }}" placeholder="Min child weight" value="0.5" name="min_child_weight_{{ group.id }}">
+    </div>
+</div>
+
+        <!-- Formularzeile für den Parameter "Gamma" -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Gamma" -->
+    <div class="col-4 text-left">
+        <label for="gamma_{{ forloop.counter }}">Gamma</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zu "Gamma" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="gammaButton_{{ forloop.counter }}">What is gamma?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Gamma" -->
+    <div class="col-4 text-left">
+        <input type="number" step="1" class="form-control border border-primary rounded-pill" id="gamma_{{ forloop.counter }}" placeholder="Gamma" value="1" name="gamma_{{ group.id }}">
+    </div>
+</div>
+
+<!-- Formularzeile für den Parameter "Subsample" -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Subsample" -->
+    <div class="col-4 text-left">
+        <label for="subsample_{{ forloop.counter }}">Subsample</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zu "Subsample" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="subSampleButton_{{ forloop.counter }}">What is a subsample?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Subsample" -->
+    <div class="col-4 text-left">
+        <input type="number" step="0.1" class="form-control border border-primary rounded-pill" id="subsample_{{ forloop.counter }}" placeholder="Subsample" value="0.8" name="subsample_{{ group.id }}">
+    </div>
+</div>
+
+        <!-- Formularzeile für den Parameter "Colsample bytree" -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Colsample bytree" -->
+    <div class="col-4 text-left">
+        <label for="colsample_bytree_{{ forloop.counter }}">Colsample bytree</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zu "Colsample bytree" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="colSampleButton_{{ forloop.counter }}">What is a col sample by tree?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Colsample bytree" -->
+    <div class="col-4 text-left">
+        <input type="number" step="0.1" class="form-control border border-primary rounded-pill" id="colsample_bytree_{{ forloop.counter }}" placeholder="Colsample bytree" value="0.8" name="colsample_bytree_{{ group.id }}">
+    </div>
+</div>
+
+<!-- Formularzeile für den Parameter "Scale Pos Weight" -->
+<div class="form-row">
+    <!-- Text links für den Parameter "Scale Pos Weight" -->
+    <div class="col-4 text-left">
+        <label for="scale_pos_weight_{{ forloop.counter }}">Scale Pos Weight</label>
+    </div>
+
+    <!-- Button in der Mitte, der Informationen zu "Scale Pos Weight" gibt -->
+    <div class="col-4 text-left">
+        <button class="btn btn-outline-info btn-block" id="scalePosWeightButton_{{ forloop.counter }}">What is the scale pos weight?</button>
+    </div>
+
+    <!-- Eingabefeld rechts für den Parameter "Scale Pos Weight" -->
+    <div class="col-4 text-left">
+        <input type="number" step="1" class="form-control border border-primary rounded-pill" id="scale_pos_weight_{{ forloop.counter }}" placeholder="Scale pos weight" value="1" name="scale_pos_weight_{{ group.id }}">
+    </div>
+</div>
+
+<!-- Schließung des if-else-Blocks für die Gruppen -->
+{% endif %}
+</div>
+
+<!-- Horizontale Linie zur Trennung -->
+<hr>
+
+    <script>
+        // Funktion zum Anzeigen des Spinners (Ladeanzeige)
+function showSpinner() {
+    // Anzeigen des Spinner-Containers durch Entfernen der Klasse 'd-none', die ihn versteckt hält
+    document.querySelector('.spinner-container').classList.remove('d-none');
+}
+
+// EventListener für den Button mit der ID "learningRateButton_{{ forloop.counter }}" zum Anzeigen von Informationen zur Lernrate
+document.getElementById("learningRateButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z. B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zur Lernrate
+    const infoMessage = "The learning rate is a hyperparameter used in machine learning algorithms that determines the step size at each iteration during the optimization process. It affects the speed at which the algorithm learns and can impact the model's performance.";
+    
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+// EventListener für den Button mit der ID "maxDepthButton_{{ forloop.counter }}" zum Anzeigen von Informationen zur maximalen Tiefe
+document.getElementById("maxDepthButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z. B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zur maximalen Tiefe
+    const infoMessage = "In XGBoost, max depth is a hyperparameter that determines the maximum depth of each tree in the ensemble. It controls the complexity of the model and can affect its performance and overfitting. A higher max depth allows the model to capture more complex interactions between features but can also lead to overfitting.";
+
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+        // EventListener für den Button mit der ID "nEstimatorsButton_{{ forloop.counter }}" zum Anzeigen von Informationen zur Anzahl der Schätzwerte
+document.getElementById("nEstimatorsButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z.B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zur Anzahl der Schätzwerte
+    const infoMessage = "In XGBoost, n estimators is a hyperparameter that specifies the number of decision trees in the ensemble. It controls the number of iterations or boosting rounds of the algorithm and can affect the model's performance and overfitting. A higher number of estimators can improve the model's performance but can also increase the risk of overfitting.";
+
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+// EventListener für den Button mit der ID "minChildWeightButton_{{ forloop.counter }}" zum Anzeigen von Informationen zum minimalen Kind-Gewicht
+document.getElementById("minChildWeightButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z.B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zum minimalen Kind-Gewicht
+    const infoMessage = "In XGBoost, min child weight is a hyperparameter that specifies the minimum sum of instance weight needed in a child. It controls the minimum number of samples required to split a node during the tree construction process and can affect the model's performance and overfitting. A higher min child weight can reduce overfitting by requiring a higher number of samples to split nodes, but can also result in a less complex model.";
+
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+        // EventListener für den Button mit der ID "gammaButton_{{ forloop.counter }}" zum Anzeigen von Informationen zu Gamma
+document.getElementById("gammaButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z.B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zu Gamma
+    const infoMessage = "In XGBoost, gamma is a hyperparameter that specifies the minimum reduction in the loss required to make a further partition on a leaf node of the tree. It controls the pruning of the tree and can affect the model's performance and overfitting. A higher gamma value can result in fewer splits, which can reduce overfitting but can also result in a less complex model.";
+
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+// EventListener für den Button mit der ID "subSampleButton_{{ forloop.counter }}" zum Anzeigen von Informationen zum Subsample
+document.getElementById("subSampleButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z.B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zum Subsample
+    const infoMessage = "In XGBoost, subsample is a hyperparameter that controls the fraction of samples used for each boosting round. It specifies the proportion of the training instances to be randomly sampled before training each tree in the ensemble and can affect the model's performance and overfitting. A lower subsample value can reduce overfitting by reducing the variance of the model, but can also result in a less accurate model.";
+
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+        // EventListener für den Button mit der ID "colSampleButton_{{ forloop.counter }}" zum Anzeigen von Informationen zu colsample bytree
+document.getElementById("colSampleButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z.B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zu colsample bytree
+    const infoMessage = "In XGBoost, colsample bytree is a hyperparameter that controls the fraction of features used for each boosting round. It specifies the proportion of the features to be randomly sampled before training each tree in the ensemble and can affect the model's performance and overfitting. A lower colsample bytree value can reduce overfitting by reducing the variance of the model, but can also result in a less accurate model.";
+
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+// EventListener für den Button mit der ID "scalePosWeightButton_{{ forloop.counter }}" zum Anzeigen von Informationen zu scale pos weight
+document.getElementById("scalePosWeightButton_{{ forloop.counter }}").addEventListener("click", function(event) {
+    // Verhindern des Standardverhaltens des Buttons (z.B. Absenden eines Formulars)
+    event.preventDefault();
+
+    // Informationstext zu scale pos weight
+    const infoMessage = "In XGBoost, scale pos weight is a hyperparameter that controls the balance of positive and negative weights in the dataset. It is particularly useful for imbalanced datasets where the number of instances of one class is much larger than the other. It can affect the model's performance and bias towards one class. A higher scale pos weight value can give more weight to the minority class and improve its predictive performance, but can also result in a biased model.";
+
+    // Anzeigen des Informationstexts in einem Alert-Fenster
+    alert(infoMessage);
+});
+
+// Ende des Scripts und der Schleife
+</script>
+{% endfor %}
+
+<br> <br />
+<br> <br />
+
+
+<!-- Formularzeile für die Schaltflächen "Return" und "Save" -->
+<div class="form-row">
+    <!-- Spalte für die "Return"-Schaltfläche -->
+    <div class="col-6 text-left">
+        <!-- Link zur Gruppenstatistik-Seite mit Parametern -->
+        <a href="{% url 'group_stats' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}&ai_method={{ai_method}}"  class="btn btn-secondary">Return</a>
+    </div>
+    <!-- Spalte für die "Save"-Schaltfläche -->
+    <div class="col-6 text-right">
+        <!-- "Save"-Schaltfläche vom Typ "submit" -->
+        <button type="submit" class="btn btn-primary" id="save_params">Save</button>
+    </div>
+</div>
+
+<!-- Abstände -->
+<br> <br />
+<br> <br />
+
+<!-- Container für den Lade-Spinner, standardmäßig ausgeblendet -->
+<div class="spinner-container d-none">
+    <!-- Spinner-Element -->
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+
+    <!-- Bedingung für die Anzeige einer Nachricht basierend auf der Anzahl der Gruppen -->
+    {% if groups.0.bayesian_optimization == 'yes' %}
+        {% if not message_displayed %}
+            {% if number_of_groups == 0 %}
+                <!-- Nachricht für 0 Gruppen -->
+                <p style="color: white; font-weight: bold;">This may take approximately 20 minutes.</p>
+            {% elif number_of_groups == 2 %}
+                <!-- Nachricht für 2 Gruppen -->
+                <p style="color: white; font-weight: bold;">This may take approximately 40 minutes.</p>
+            {% elif number_of_groups == 3 %}
+                <!-- Nachricht für 3 Gruppen -->
+                <p style="color: white; font-weight: bold;">This may take approximately 60 minutes.</p>
+            {% elif number_of_groups == 4 %}
+                <!-- Nachricht für 4 Gruppen -->
+                <p style="color: white; font-weight: bold;">This may take approximately 80 minutes.</p>
+            {% endif %}
+            {% with message_displayed=True %}
+            {% endwith %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <style>
+        /* Stil für den Container, der den Spinner enthält */
+        .spinner-container {
+          /* Fixierte Position, damit er immer im Vordergrund ist */
+          position: fixed;
+          /* Platzierung an den Rändern des Viewports */
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          /* Hintergrundfarbe Schwarz mit 50% Transparenz */
+          background-color: rgba(0, 0, 0, 0.5);
+          /* Z-Index sorgt dafür, dass der Container im Vordergrund bleibt */
+          z-index: 9999;
+          /* Flexbox-Layout, um den Spinner zu zentrieren */
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      
+        /* Stil für den Spinner selbst */
+        .spinner-border {
+          /* Größe des Spinners */
+          width: 3rem;
+          height: 3rem;
+        }
+      
+      </style>
+<br>  <br />
+<br>  <br /> 
+{%endblock%}

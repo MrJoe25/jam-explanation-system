@@ -1,0 +1,155 @@
+<!-- Erweitert das Navbar-Template -->
+{% extends "users/navbar.html" %}
+
+<!-- Beginnt den Inhalt-Block -->
+{% block content %}
+<!-- Einbinden des Bootstrap 4.0 CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<!-- Zusätzliche Stilregeln -->
+<style>
+    table#df_head_table thead tr, 
+    table#stat_table thead tr, 
+    table#insolvenz_info_df_table thead tr, 
+    table#df_unique_table thead tr, 
+    table#df_null_table thead tr {
+        background-color: #343a40;
+        color: white;
+    }
+</style>
+
+<!-- Leerraum für bessere visuelle Struktur -->
+<br>
+<br>
+  
+<!-- Container mit zusätzlichem Abstand oben und unten -->
+<div class="container my-5">
+    <!-- Fortschrittsanzeige -->
+    <div class="progress">
+        <!-- Fortschrittsbalken -->
+        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  
+    <!-- Überschrift für die Datensätze -->
+    <h2>Datasets used by user:</h2>
+  
+    <!-- Tabelle -->
+    <table class="table table-striped table-rounded">
+        <!-- Tabellenkopf -->
+        <thead class="thead-dark">
+            <tr>
+                <th>Superuser</th>
+                <th>User</th>
+                <th>Uploaded at</th>
+                <th>File</th>
+            </tr>
+        </thead>
+  
+        <!-- Tabellenkörper -->
+        <tbody>
+            <!-- Django-Template-Schleife zum Durchgehen aller CSV-Dateien -->
+            {% for csvfile in id %}
+            <tr>
+                <td>{{csvfile.superuser}}</td>
+                <td>{{csvfile.user}}</td>
+                <td>{{csvfile.uploaded_at}}</td>
+                <!-- Button zum Anzeigen der Datei -->
+                <td><a href="{% url 'results_csv'%}?file={{csvfile.file}}&current_user={{csvfile.user}}" class="btn btn-outline-primary">{{csvfile.file}}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Container mit zusätzlichem Abstand oben und unten -->
+<div class="container my-5">
+    <!-- Überschrift für die Dateiinformationen -->
+    <h2>File Information</h2>
+    
+    <!-- Tabelle -->
+    <table class="table table-striped">
+        <!-- Tabellenkopf -->
+        <thead class="thead-dark">
+            <tr>
+                <th>Superuser</th>
+                <th>User</th>
+                <th>File</th>
+            </tr>
+        </thead>
+        
+        <!-- Tabellenkörper -->
+        <tbody>
+            <tr>
+                <!-- Superuser, der die Datei hochgeladen hat -->
+                <td>{{user}}</td>
+                
+                <!-- Aktueller Benutzer -->
+                <td>{{current_user}}</td>
+                
+                <!-- Name der Datei -->
+                <td>{{file}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Container mit zusätzlichem Abstand oben und unten -->
+<div class="container my-5">
+    <!-- Überschrift für das Dataframe -->
+    <h2>Dataframe</h2>
+    <!-- Hinweis, dass nur die ersten fünf Zeilen angezeigt werden -->
+    <p>Only showing first five rows</p>
+    <!-- Sicher gerendertes Dataframe -->
+    {{data|safe}}
+</div>
+
+<!-- Container für Statistiken -->
+<div class="container my-5">
+    <!-- Überschrift für Statistiken -->
+    <h2>Statistics</h2>
+    <!-- Untertitel -->
+    <p>Statistics of the whole Dataframe</p>
+    <!-- Sicher gerenderte Statistiken -->
+    {{stat|safe}}
+   
+    <!-- Container für Insolvenz-Statistiken -->
+    <div class="container my-5">
+        <!-- Untertitel -->
+        <p>Insolvenz Statistics</p>
+        <!-- Sicher gerenderte Insolvenz-Statistiken -->
+        {{insolvenz|safe}}
+    </div>
+    
+    <!-- Container für Anzahl der eindeutigen Werte -->
+    <div class="container my-5">
+        <!-- Untertitel -->
+        <p>Number of unique values</p>
+        <!-- Sicher gerenderte Anzahl der eindeutigen Werte -->
+        {{unique|safe}}
+    </div>
+
+    <!-- Container für Anzahl der Nullwerte -->
+    <div class="container my-5">
+        <!-- Untertitel -->
+        <p>Number of null values</p>
+        <!-- Sicher gerenderte Anzahl der Nullwerte -->
+        {{null|safe}}
+    </div>
+</div>
+
+<!-- Container für Navigationsbuttons -->
+<div class="d-flex justify-content-between bottom-fixed">
+    <!-- Button zum Ändern des Benutzers -->
+    <form action="/data_overview/" method="get">
+        <button type="submit" class="btn btn-secondary mb-2">Change User</button>
+    </form>
+    <!-- Button zum Fortfahren -->
+    <a href="{% url 'datacleaning' %}?file={{file}}&current_user={{current_user}}" class="btn btn-primary mb-2">Continue</a>
+</div>
+
+<!-- Zusätzlicher Abstand am Ende -->
+<br>  <br />
+<br>  <br />
+
+<!-- Ende des Inhaltsblocks -->
+{% endblock %}

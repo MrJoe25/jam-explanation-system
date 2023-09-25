@@ -1,0 +1,509 @@
+<!-- Erweitert das "navbar.html"-Template im Ordner "users" -->
+{% extends "users/navbar.html" %}
+
+<!-- Beginn des Inhaltsblocks, der im "navbar.html"-Template definiert ist -->
+{% block content %}
+
+  <!-- Erzeugt eine Fortschrittsleiste mit einer Füllung von 65% -->
+  <div class="progress">
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+
+  <!-- Fügt Leerzeilen für bessere Lesbarkeit hinzu -->
+  <br>
+  <br>
+
+  <!-- Button, der Informationen zum XGBoost-Maschinenlernalgorithmus anzeigt -->
+  <input class="btn btn-outline-info btn-block" type="button" id="xgb_explanation_info_button" value="Information about the XGBoost Machine Learning Algorithm">
+
+  <!-- Button, der Informationen zur Train-Test-Validierungssplittung anzeigt -->
+  <input class="btn btn-outline-info btn-block" type="button" id="train_test_info_button" value="Information about Train Test Validation Split">
+
+  <!-- Button, der Informationen zur Bayesschen Optimierung anzeigt -->
+  <input class="btn btn-outline-info btn-block" type="button" id="bayesian_explanation_info_button" value="Information about Bayesian Optimization">
+
+  <!-- Button, der Informationen zu Stichprobenverfahren anzeigt -->
+  <input class="btn btn-outline-info btn-block" type="button" id="sampling_method_info_button" value="Information about Sampling Methods">
+
+  <!-- Button, der Informationen zur Datenumwandlung von lang zu breit anzeigt -->
+  <input class="btn btn-outline-info btn-block" type="button" id="long_wide_info_button" value="Information about the data transformation from long to wide">
+
+        <script>
+          // fügt einen EventListener für den "bayesian_explanation_info_button" hinzu
+          document.getElementById("bayesian_explanation_info_button").addEventListener("click", function(event) {
+            // Verhindert das Standardverhalten des Browsers bei einem Klick
+            event.preventDefault();
+            // Setzt die Nachricht für das Informationsfenster
+            infoMessage = "Bayesian optimization is a powerful technique for optimizing hyperparameters in machine learning models. It constructs a probabilistic model of the objective function to predict the best-performing hyperparameter combination. This approach is particularly valuable for improving results on imbalanced datasets, like those encountered when using XGBoost. Bayesian optimization automates the hyperparameter tuning process, saving time and resources while improving model performance. It can optimize a range of hyperparameters, such as gamma, max_depth, n_estimators, learning_rate, and more, making it a valuable tool for developing accurate machine learning models.";
+            // Zeigt die Informationsnachricht in einem Alert-Fenster an
+            alert(infoMessage);
+          });
+            // Fügt einen EventListener für den "train_test_info_button" hinzu
+          document.getElementById("train_test_info_button").addEventListener("click", function(event) {
+            // Verhindert das Standardverhalten des Browsers bei einem Klick
+            event.preventDefault();
+            // Setzt die Nachricht für das Informationsfenster
+            infoMessage = "A train test validation split is a common technique used in machine learning to evaluate the performance of a model. The dataset is divided into three subsets: a training set used to train the model, a validation set used to tune hyperparameters and avoid overfitting, and a test set used to evaluate the final performance of the model. This technique helps to ensure that the model generalizes well to new data and is not simply memorizing the training data.";
+            // Zeigt die Informationsnachricht in einem Alert-Fenster an
+            alert(infoMessage);
+          });
+            // Fügt einen EventListener für den "sampling_method_info_button" hinzu
+          document.getElementById("sampling_method_info_button").addEventListener("click", function(event) {
+            // Verhindert das Standardverhalten des Browsers bei einem Klick
+            event.preventDefault();
+            // Setzt die Nachricht für das Informationsfenster
+            infoMessage = "SMOTE creates synthetic examples of the minority class by interpolating between existing minority class samples, addressing class imbalance in machine learning.\n\nSMOTE-Tomek removes noisy samples and Tomek links, which are pairs of samples that are nearest neighbors but belong to different classes.\n\nSMOTE-ENN combines oversampling with the undersampling technique ENN to remove noisy samples and generate more effective synthetic examples.";
+            // Zeigt die Informationsnachricht in einem Alert-Fenster an
+            alert(infoMessage);
+        });
+             // Fügt einen EventListener für den "xgb_explanation_info_button" hinzu
+          document.getElementById("xgb_explanation_info_button").addEventListener("click", function(event) {
+            // Verhindert das Standardverhalten des Browsers bei einem Klick
+            event.preventDefault();
+            // Setzt die Nachricht für das Informationsfenster
+            const infoMessage = "XGBoost is a popular machine learning library that can handle large datasets and achieve high prediction accuracy. It uses gradient boosting, iteratively adding new trees to the ensemble, with each tree correcting the previous one's errors. XGBoost is useful for imbalanced datasets and binary classification because it includes regularization, class weighting, and subsampling of examples and features. XGBoost's efficient implementation can handle datasets with millions or billions of rows and columns. It supports multi-threading and distributed computing for faster training on multi-core CPUs and clusters.";
+            // Zeigt die Informationsnachricht in einem Alert-Fenster an
+            alert(infoMessage);
+            });
+            // Fügt einen EventListener für den "long_wide_info_button" hinzu
+            document.getElementById("long_wide_info_button").addEventListener("click", function(event) {
+            // Verhindert das Standardverhalten des Browsers bei einem Klick
+            event.preventDefault();
+            // Setzt die Nachricht für das Informationsfenster
+            const infoMessage = "This function prepares financial data for machine learning by cleaning, transforming, and reshaping it into a wide-format suitable for time series analysis. It removes an unnecessary column, sorts by company ID and year, and separates the data into two groups - bankrupt and non-bankrupt companies. Rows for bankrupt companies after the bankruptcy year are dropped, and companies with insufficient data are removed. The resulting wide-format dataset is used to train and test a machine learning model for predicting bankruptcy.";
+            // Zeigt die Informationsnachricht in einem Alert-Fenster an
+            alert(infoMessage);
+            });
+        </script>
+{% if number_of_groups == 0 %}  <!-- Überprüfung, ob keine Gruppen vorhanden sind -->
+<h1>Selection of the AI Algorithm</h1>  <!-- Überschrift für die Algorithmenauswahl -->
+<form method="post">  <!-- Beginn des Formulars, POST als Übertragungsmethode -->
+  {% csrf_token %}  <!-- CSRF-Token für Sicherheitszwecke -->
+  
+  <h2>Train-Test-Validation Split</h2>  <!-- Unterüberschrift für den Abschnitt zur Daten-Aufteilung -->
+  <div class="form-group">  <!-- Beginn eines Formularelements -->
+    <label for="aiMethod">Select AI Method</label>  <!-- Beschriftung für das Auswahlmenü -->
+    <select class="form-control border border-primary rounded-pill" id="aiMethod" name="ai_method">  <!-- Dropdown-Menü zur Auswahl der KI-Methode -->
+      <option value="xgboost">XG-Boost</option>  <!-- Auswahlmöglichkeit für den XG-Boost Algorithmus -->
+    </select>
+  </div>  <!-- Ende des Formularelements -->
+  <br><br>  <!-- Leerraum für bessere Lesbarkeit -->
+  {% for group in groups %}  <!-- Beginn der Schleife, die durch alle Gruppen iteriert -->
+  <hr>  <!-- Horizontale Linie zur Trennung der Gruppen -->
+
+  <h3>{{ file }}</h3>  <!-- Anzeige des Dateinamens, der zur Gruppe gehört -->
+
+  {% if error_message %}  <!-- Überprüfung, ob eine Fehlermeldung vorhanden ist -->
+    <div class="alert alert-danger my-5" role="alert">  <!-- Anzeigebereich für die Fehlermeldung; "alert-danger" für rote Hervorhebung -->
+      {{ error_message }}  <!-- Ausgabe der Fehlermeldung -->
+    </div>
+  {% endif %}  <!-- Ende der Überprüfung für eine Fehlermeldung -->
+
+  <!-- Formularbereich für die Auswahl, ob Bayes'sche Optimierung verwendet werden soll -->
+  <div class="form-group">  
+    <label for="bayesianOptimization">Use Bayesian Optimization?</label>  <!-- Beschriftung für die Auswahlmöglichkeit -->
+    <select class="form-control bayesianOptimization" id="bayesianOptimization" name="bayesian_optimization">  <!-- Dropdown-Menü für die Auswahl -->
+      <option value="no">No</option>  <!-- Option für "Nein" -->
+      <option value="yes">Yes</option>  <!-- Option für "Ja" -->
+    </select>
+  </div>  <!-- Ende des Formularbereichs -->
+        <!-- Beginn des Formularbereichs für die Train-Test-Validation Aufteilung -->
+<div class="form-group">
+  <label for="groupSplit">Train-Test-Validation Split</label>  <!-- Beschriftung für die Auswahl der Daten-Aufteilung -->
+  <!-- Dropdown-Menü für die Auswahl der Daten-Aufteilung; verschiedene Prozentsätze als Optionen -->
+  <select class="form-control border border-primary rounded-pill groupSplit" id="groupSplit" name="group_split">
+    <option value="80-20-0">80-20-0</option>
+    <option value="70-30-0">70-30-0</option>
+    <option value="60-40-0">60-40-0</option>
+    <option value="60-20-20">60-20-20</option>
+    <option value="70-15-15">70-15-15</option>
+    <option value="80-10-10">80-10-10</option>
+  </select>
+</div>  <!-- Ende des Formularbereichs für die Train-Test-Validation Aufteilung -->
+
+<!-- Beginn des Formularbereichs für die Auswahl der Sampling-Methode -->
+<div class="form-group">
+  <label for="samplingMethod">Sampling Method</label>  <!-- Beschriftung für die Auswahl der Sampling-Methode -->
+  <!-- Dropdown-Menü für die Auswahl der Sampling-Methode; verschiedene Methoden als Optionen -->
+  <select class="form-control border border-primary rounded-pill" id="samplingMethod" name="sampling_method">
+    <option value="smote">SMOTE</option>
+    <option value="smote_tomek">SMOTE-Tomek</option>
+    <option value="smote_enn">SMOTE-ENN</option>
+  </select>
+</div>  <!-- Ende des Formularbereichs für die Auswahl der Sampling-Methode -->
+
+{% endfor %}  <!-- Ende der Schleife, die durch alle Gruppen iteriert -->
+<br><br>  <!-- Leerraum für bessere Lesbarkeit -->
+
+    
+<!-- Beginn einer Zeile im Formular, die zwei Spalten enthält -->
+<div class="form-row">
+  <!-- Erste Spalte (6 von 12 Gittereinheiten); ausgerichtet nach links -->
+  <div class="col-6 text-left">
+    <!-- Hyperlink, um zur Seite "group_processing" zurückzukehren; Übergabe von Datei, aktuellem Benutzer und Anzahl der Gruppen als URL-Parameter -->
+    <a href="{% url 'group_processing' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}" class="btn btn-secondary">Return</a>
+  </div>
+
+  <!-- Zweite Spalte (6 von 12 Gittereinheiten); ausgerichtet nach rechts -->
+  <div class="col-6 text-right">
+    <!-- Button zum Absenden des Formulars -->
+    <button type="submit" class="btn btn-primary">Continue</button>
+  </div>
+</div>  <!-- Ende der Formularzeile -->
+
+</form>  <!-- Ende des Formulars -->
+
+<br><br>  <!-- Leerraum für bessere Lesbarkeit -->
+<br><br>  <!-- Leerraum für bessere Lesbarkeit -->
+
+<script>
+  // Das Event "DOMContentLoaded" stellt sicher, dass das Script erst ausgeführt wird, wenn das gesamte Dokument geladen ist.
+  document.addEventListener("DOMContentLoaded", function() {
+    // Elemente für AI-Methode, Bayessche Optimierung, Gruppenaufteilung und Sampling-Methode aus dem DOM holen
+    const aiMethodElement = document.querySelector("#aiMethod");
+    const bayesianOptimizationElements = document.querySelectorAll(".bayesianOptimization");
+    const groupSplitElement = document.querySelector("#groupSplit");
+    const samplingMethodElement = document.querySelector("#samplingMethod");
+
+    // Standardwert für die Bayessche Optimierung festlegen
+    const defaultBayesianOptimizationValue = "no";
+
+    // Funktion zum Aktualisieren der Optionen basierend auf der ausgewählten KI-Methode und dem Wert der Bayesschen Optimierung
+    const updateOptions = function() {
+      // Aktuell ausgewählte Werte für KI-Methode und Bayessche Optimierung holen
+      const selectedAiMethod = aiMethodElement.value;
+      const selectedBayesianOptimization = bayesianOptimizationElements[0].value;
+
+      // Anzeigen oder Verstecken des Buttons für die Bayessche Optimierung basierend auf der ausgewählten KI-Methode
+      if (selectedAiMethod === "neural_networks") {
+        // Verstecke den Button für alle Bayessche Optimierung-Elemente und setze den Wert auf den Standardwert
+        for (let i = 0; i < bayesianOptimizationElements.length; i++) {
+          bayesianOptimizationElements[i].style.display = "none";
+          bayesianOptimizationElements[i].value = defaultBayesianOptimizationValue;
+        }
+      } else {
+        // Zeige den Button für alle Bayessche Optimierung-Elemente an
+        for (let i = 0; i < bayesianOptimizationElements.length; i++) {
+          bayesianOptimizationElements[i].style.display = "block";
+        }
+      }
+
+              // Verbergen/Anzeigen der Schaltflächen für Train-Test-Validation-Aufteilung und Sampling-Methode basierend auf dem ausgewählten Wert für die Bayessche Optimierung und der KI-Methode
+  if (selectedBayesianOptimization === "yes" && selectedAiMethod === "xgboost") {
+    // Zeigt das Element für die Train-Test-Validation-Aufteilung an, wenn Bayessche Optimierung auf "Ja" und KI-Methode auf "XG-Boost" gesetzt sind
+    groupSplitElement.style.display = "block";
+    // Versteckt das Element für die Sampling-Methode
+    samplingMethodElement.style.display = "none";
+  } else {
+    // Zeigt sowohl das Element für die Train-Test-Validation-Aufteilung als auch für die Sampling-Methode an
+    groupSplitElement.style.display = "block";
+    samplingMethodElement.style.display = "block";
+  }
+};
+
+// Event-Listener für das Dropdown-Menü der KI-Methode; ruft die Funktion "updateOptions" bei einer Änderung auf
+aiMethodElement.addEventListener("change", updateOptions);
+
+// Event-Listener für die Dropdown-Menüs der Bayesschen Optimierung; ruft die Funktion "updateOptions" bei einer Änderung auf
+for (let i = 0; i < bayesianOptimizationElements.length; i++) {
+  bayesianOptimizationElements[i].addEventListener("change", updateOptions);
+}
+
+// Aufruf der Funktion "updateOptions", um die Standardoptionen festzulegen
+updateOptions();
+});
+
+      </script>
+      <script>
+        // Das Event "DOMContentLoaded" stellt sicher, dass das Script erst ausgeführt wird, wenn das gesamte Dokument geladen ist.
+document.addEventListener("DOMContentLoaded", function() {
+  // Element für AI-Methode und alle Gruppenaufteilungselemente mit der ID, die mit 'groupSplit' beginnt, aus dem DOM holen
+  const aiMethodElement = document.querySelector("#aiMethod");
+  const groupSplitElements = document.querySelectorAll(".form-control[id^='groupSplit']");
+
+  // Funktion zum Aktualisieren der Optionen basierend auf der ausgewählten KI-Methode
+  const updateOptions = function() {
+    // Durchläuft alle Elemente der Gruppenaufteilung
+    for (let i = 0; i < groupSplitElements.length; i++) {
+      const groupSplit = groupSplitElements[i];
+
+      // Wenn die ausgewählte KI-Methode "xgboost" ist
+      if (aiMethodElement.value === "xgboost") {
+        // Zeigt das aktuelle Gruppenaufteilungselement an
+        groupSplit.style.display = "block";
+
+        // Durchläuft alle Optionen des aktuellen Gruppenaufteilungselements
+        for (const option of groupSplit.options) {
+          // Wenn der Wert der Option auf "-0" endet
+          if (option.value.endsWith("-0")) {
+            // Zeigt die Option an und setzt sie als ausgewählt
+            option.style.display = "block";
+            option.selected = true;
+          } else {
+            // Versteckt die Option
+            option.style.display = "none";
+          }
+        }
+      } else {
+  // Wenn die ausgewählte KI-Methode nicht "xgboost" ist
+  // Zeigt das aktuelle Gruppenaufteilungselement an
+  groupSplit.style.display = "block";
+
+  // Durchläuft alle Optionen des aktuellen Gruppenaufteilungselements
+  for (const option of groupSplit.options) {
+    // Wenn der Wert der Option nicht auf "-0" endet
+    if (!option.value.endsWith("-0")) {
+      // Zeigt die Option an
+      option.style.display = "block";
+      // Setzt "80-10-10" als ausgewählten Wert
+      option.selected = "80-10-10";
+    } else {
+      // Versteckt die Option
+      option.style.display = "none";
+    }
+  }
+}
+}
+};
+
+      
+  // Event-Listener für das Dropdown-Menü der KI-Methode; ruft die Funktion "updateOptions" bei einer Änderung auf
+  aiMethodElement.addEventListener("change", updateOptions);
+
+// Aufruf der Funktion "updateOptions", um die Standardoptionen festzulegen
+updateOptions();
+});
+
+
+</script>    
+{% else %}
+  <!-- Titel der Seite, wenn es keine Gruppen gibt -->
+  <h1>Selection of the AI Algorithm</h1>
+  <!-- Beginn des Formulars für die POST-Methode -->
+  <form method="post">
+    <!-- CSRF-Token für die Sicherheit -->
+    {% csrf_token %}
+
+    <!-- Überschrift für den Bereich zur Auswahl der Train-Test-Validation-Aufteilung -->
+    <h2>Train-Test-Validation Split</h2>
+    <!-- Container für die Formularelemente -->
+    <div class="form-group">
+      <!-- Beschriftung des Dropdown-Menüs für die KI-Methode -->
+      <label for="aiMethod">Select AI Method</label>
+      <!-- Dropdown-Menü für die Auswahl der KI-Methode -->
+      <select class="form-control" id="aiMethod" name="ai_method">
+        <!-- Option für die KI-Methode XG-Boost -->
+        <option value="xgboost">XG-Boost</option>
+      </select>
+    </div>
+    <!-- Leerraum -->
+    <br><br>
+
+    {% for group in groups %}
+    <!-- Horizontale Linie zur Abtrennung der Gruppen -->
+    <hr>
+    <!-- Anzeige des Gruppennamens -->
+    <h3>{{ group.group_name }}</h3>
+    <!-- Überprüfung, ob eine Fehlermeldung vorhanden ist -->
+    {% if error_message %}
+      <!-- Anzeige der Fehlermeldung in einem roten Alert-Feld -->
+      <div class="alert alert-danger my-5" role="alert">
+          {{ error_message }}
+      </div>
+    {% endif %}
+  
+
+          <!-- Formularbereich für Bayesian Optimization -->
+  <div class="form-group">
+    <!-- Beschriftung für die Bayesian Optimization Auswahl -->
+    <label for="bayesianOptimization{{ forloop.counter }}">Bayesian Optimization</label>
+    <!-- Dropdown für die Bayesian Optimization; ID und Name sind dynamisch und hängen von der aktuellen Iteration der Schleife ab -->
+    <select class="form-control" id="bayesianOptimization{{ forloop.counter }}" name="bayesian_optimization{{ forloop.counter }}">
+        <!-- Option für "Nein" -->
+        <option value="no">No</option>
+        <!-- Option für "Ja" -->
+        <option value="yes">Yes</option>
+    </select>
+  </div>
+  
+  <!-- Formularbereich für die Train-Test-Validation Aufteilung -->
+  <div class="form-group">
+    <!-- Beschriftung für die Train-Test-Validation Aufteilung -->
+    <label for="groupSplit{{ forloop.counter }}">Train-Test-Validation Split</label>
+    <!-- Dropdown für die Train-Test-Validation Aufteilung; ID und Name sind dynamisch und hängen von der aktuellen Iteration der Schleife ab -->
+    <select class="form-control groupSplit" id="groupSplit{{ forloop.counter }}" name="group_split{{ forloop.counter }}">
+        <!-- Verschiedene Optionen für die Train-Test-Validation Aufteilung -->
+        <option value="80-20-0">80-20-0</option>
+        <option value="70-30-0">70-30-0</option>
+        <option value="60-40-0">60-40-0</option>
+        <option value="60-20-20">60-20-20</option>
+        <option value="70-15-15">70-15-15</option>
+        <option value="80-10-10">80-10-10</option>
+    </select>
+  </div>
+
+        <!-- Formularbereich für die Sampling Method -->
+<div class="form-group">
+  <!-- Beschriftung für die Sampling Method Auswahl -->
+  <label for="samplingMethod{{ forloop.counter }}">Sampling Method</label>
+  <!-- Dropdown für die Sampling Method; ID und Name sind dynamisch und hängen von der aktuellen Iteration der Schleife ab -->
+  <select class="form-control" id="samplingMethod{{ forloop.counter }}" name="sampling_method{{ forloop.counter }}">
+    <!-- Verschiedene Optionen für die Sampling Method -->
+    <option value="smote">SMOTE</option>
+    <option value="smote_tomek">SMOTE-Tomek</option>
+    <option value="smote_enn">SMOTE-ENN</option>
+  </select>
+</div>
+<!-- Schließen der for-Schleife -->
+{% endfor %}
+
+<!-- Abstandhalter -->
+<br><br>
+
+<!-- Container für die Schaltflächen "Return" und "Continue" -->
+<div class="form-row">
+  <!-- Linker Bereich für die "Return"-Schaltfläche -->
+  <div class="col-6 text-left">
+    <!-- Link, um zur vorherigen Seite zurückzukehren -->
+    <a href="{% url 'group_representation' %}?file={{file}}&current_user={{current_user}}&number_of_groups={{number_of_groups}}" class="btn btn-secondary">Return</a>
+  </div>
+  <!-- Rechter Bereich für die "Continue"-Schaltfläche -->
+  <div class="col-6 text-right">
+    <!-- Schaltfläche, um das Formular abzusenden und fortzufahren -->
+    <button type="submit" class="btn btn-primary">Continue</button>
+  </div>
+</div>
+
+<!-- Schließen des Formulars -->
+</form>
+
+<!-- Abstandhalter -->
+<br><br>
+<br><br>
+
+      <script>
+        // Warte, bis das Dokument vollständig geladen ist
+document.addEventListener("DOMContentLoaded", function() {
+  // Referenzen zu den HTML-Elementen
+  const aiMethodElement = document.querySelector("#aiMethod");
+  const groupSplitElements = document.querySelectorAll(".form-control.groupSplit");
+  const samplingMethodElements = document.querySelectorAll(".form-control[name^='sampling_method']");
+  const bayesianOptimizationElements = document.querySelectorAll(".form-control[name^='bayesian_optimization']");
+  const defaultBayesianOptimizationValue = "no";
+  
+  // Funktion, um Optionen basierend auf der ausgewählten KI-Methode und dem Wert für die Bayes'sche Optimierung zu aktualisieren
+  const updateOptions = function() {
+    // Wert der ausgewählten KI-Methode
+    const selectedAiMethod = aiMethodElement.value;
+  
+    // Ein-/Ausblenden des Buttons für die Bayes'sche Optimierung, abhängig von der ausgewählten KI-Methode
+    if (selectedAiMethod === "neural_networks") {
+      for (let i = 0; i < bayesianOptimizationElements.length; i++) {
+        // Button ausblenden und Wert auf Standard zurücksetzen
+        bayesianOptimizationElements[i].style.display = "none";
+        bayesianOptimizationElements[i].value = defaultBayesianOptimizationValue;
+      }
+    } else {
+      for (let i = 0; i < bayesianOptimizationElements.length; i++) {
+        // Button einblenden
+        bayesianOptimizationElements[i].style.display = "block";
+      }
+    }
+      
+            // Ein-/Ausblenden der Buttons für Train-Test-Validation Split und Sampling-Methode, abhängig von dem ausgewählten Wert für die Bayes'sche Optimierung und der KI-Methode
+for (let i = 0; i < groupSplitElements.length; i++) {
+  // Elemente für diesen Schleifendurchlauf
+  const groupSplitElement = groupSplitElements[i];
+  const samplingMethodElement = samplingMethodElements[i];
+  const bayesianOptimizationElement = bayesianOptimizationElements[i];
+
+  // Prüfen, ob die Bayes'sche Optimierung aktiviert ist und die ausgewählte KI-Methode "xgboost" ist
+  if (bayesianOptimizationElement.value === "yes" && selectedAiMethod === "xgboost") {
+    // Nur das Element für den Train-Test-Validation Split anzeigen
+    groupSplitElement.style.display = "block";
+    samplingMethodElement.style.display = "none";
+  } else {
+    // Beide Elemente anzeigen
+    groupSplitElement.style.display = "block";
+    samplingMethodElement.style.display = "block";
+  }
+}
+
+};
+      
+          // Event-Listener für die Auswahlliste der KI-Methode
+aiMethodElement.addEventListener("change", updateOptions);
+
+// Event-Listener für die Auswahllisten der Bayes'schen Optimierung
+for (let i = 0; i < bayesianOptimizationElements.length; i++) {
+  bayesianOptimizationElements[i].addEventListener("change", updateOptions);
+}
+
+// Aufruf der Funktion updateOptions, um die Standardoptionen zu setzen
+updateOptions();
+
+});
+      </script>
+      <script>
+
+        // Hinzufügen eines Event-Listeners, der bei vollständigem Laden des DOMs aktiviert wird
+document.addEventListener("DOMContentLoaded", function() {
+  // Auswahl des Elements mit der ID "aiMethod"
+  const aiMethodElement = document.querySelector("#aiMethod");
+  // Auswahl aller Elemente mit der Klasse "form-control" und einer ID, die mit "groupSplit" beginnt
+  const groupSplitElements = document.querySelectorAll(".form-control[id^='groupSplit']");
+  
+  // Funktion zur Aktualisierung der Optionen basierend auf der ausgewählten KI-Methode
+  const updateOptions = function() {
+    // Durchlaufen aller groupSplitElements
+    for (let i = 0; i < groupSplitElements.length; i++) {
+      // Aktuelles Element in der Schleife
+      const groupSplit = groupSplitElements[i];
+  
+      // Überprüfung, ob die ausgewählte KI-Methode "xgboost" ist
+      if (aiMethodElement.value === "xgboost") {
+        // Anzeigen des aktuellen groupSplit-Elements
+        groupSplit.style.display = "block";
+        // Durchlaufen aller Optionen des aktuellen groupSplit-Elements
+        for (const option of groupSplit.options) {
+          // Überprüfung, ob der Wert der Option auf "-0" endet
+          if (option.value.endsWith("-0")) {
+            // Anzeigen der Option
+            option.style.display = "block";
+            // Setzen der Option als ausgewählt
+            option.selected = true;
+          } else {
+            // Ausblenden der Option
+            option.style.display = "none";
+          }
+        }
+      } else {
+    // Anzeigen des aktuellen groupSplit-Elements, wenn die KI-Methode nicht "xgboost" ist
+    groupSplit.style.display = "block";
+    // Durchlaufen aller Optionen des aktuellen groupSplit-Elements
+    for (const option of groupSplit.options) {
+      // Überprüfung, ob der Wert der Option nicht auf "-0" endet
+      if (!option.value.endsWith("-0")) {
+        // Anzeigen der Option
+        option.style.display = "block";
+        // Setzen der Option "80-10-10" als ausgewählt
+        option.selected = "80-10-10";
+      } else {
+        // Ausblenden der Option
+        option.style.display = "none";
+      }
+    }
+  }
+}
+};
+
+// Event-Listener für die Auswahlbox der KI-Methode
+aiMethodElement.addEventListener("change", updateOptions);
+
+// Aufruf der updateOptions-Funktion, um die Standardoptionen zu setzen
+updateOptions();
+});
+</script>
+{% endif %}
+
+{% endblock %}

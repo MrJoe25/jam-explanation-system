@@ -1,0 +1,93 @@
+<!--
+  ######################################################
+  ##                                                  ##
+  ##  Dies ist eine base.html Datei, die als          ##
+  ##  Beispieldesign aus dem Internet gezogen wurde.  ##
+  ##                                                  ##
+  ##  Quelle: https://github.com/CoreyMSchafer/code_snippets/tree/master/Django_Blog/snippets                       ##
+  ##  Autor: Corey Schafer        ##
+  ##                                                  ##
+  ######################################################
+-->
+
+{% load static %}  <!-- Lädt Django's statische Dateiverwaltung -->
+<!DOCTYPE html>  <!-- Deklariert den Dokumenttyp als HTML5 -->
+<html>  <!-- Beginn des HTML-Dokuments -->
+<head>  <!-- Kopfbereich des Dokuments -->
+    <!-- Required meta tags -->
+    <meta charset="utf-8">  <!-- Setzt die Zeichenkodierung auf UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">  <!-- Viewport-Einstellungen für Responsive Design -->
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">  <!-- Einbinden des Bootstrap-CSS von einem CDN -->
+    <link rel="stylesheet" type="text/css" href="{% static 'users/main.css' %}">  <!-- Einbinden einer benutzerdefinierten CSS-Datei mit Django's statischem Tag -->
+
+    <title>JAMes</title>  <!-- Titel der Webseite -->
+</head>  <!-- Ende des Kopfbereichs -->
+<body>  <!-- Beginn des Körperbereichs des Dokuments -->
+    <header class="site-header">  <!-- Kopfzeile der Webseite -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background-color:#6b9ff2;">  <!-- Navigationsleiste mit Bootstrap-Klassen und festem Stil -->
+          <div class="container">  <!-- Container für den Inhalt der Navigationsleiste -->
+            <a class="navbar-brand mr-4" href="/">JAM Explanation System</a>  <!-- Branding und Link zur Startseite -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">  <!-- Button für das Ein-/Ausklappen der Navigationsleiste auf kleineren Bildschirmen -->
+            <span class="navbar-toggler-icon"></span>  <!-- Icon für den Toggle-Button -->
+            </button>
+            <div class="collapse navbar-collapse" id="navbarToggle">  <!-- Ein-/Ausklappbarer Bereich der Navigationsleiste -->
+              <div class="navbar-nav mr-auto">  <!-- Container für Navigationslinks -->
+                <a class="nav-item nav-link" href="{% url 'users-home' %}">Home</a>  <!-- Navigationslink zur Startseite mit Django URL-Tag -->
+                <a class="nav-item nav-link" href="{% url 'users-about' %}">About</a>  <!-- Navigationslink zur "Über uns"-Seite mit Django URL-Tag -->
+              </div>
+              <!-- Navbar Right Side -->
+            <div class="navbar-nav">  <!-- Container für Navigationslinks auf der rechten Seite -->
+              {% if user.is_authenticated %}  <!-- Überprüfung, ob der Benutzer angemeldet ist -->
+                <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>  <!-- Link zum Admin-Bereich, sichtbar nur für angemeldete Benutzer -->
+                <a class="nav-item nav-link" href="{% url 'personal_dashboard' %}">Personal Overview</a>  <!-- Link zur persönlichen Übersichtsseite, sichtbar nur für angemeldete Benutzer -->
+                <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>  <!-- Logout-Link, sichtbar nur für angemeldete Benutzer -->
+              {% else %}  <!-- Falls der Benutzer nicht angemeldet ist -->
+                <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>  <!-- Login-Link, sichtbar für nicht angemeldete Benutzer -->
+              {% endif %}
+            </div>
+            </div>  <!-- Schließt den ein-/ausklappbaren Bereich der Navigationsleiste -->
+            </div>  <!-- Schließt den Container für den Inhalt der Navigationsleiste -->
+            </nav>  <!-- Schließt die Navigationsleiste -->
+            </header>  <!-- Schließt die Kopfzeile der Webseite -->
+            <main role="main" class="container">  <!-- Hauptinhalt der Webseite, eingebettet in einen Bootstrap-Container -->
+              <div class="row">  <!-- Beginn einer neuen Bootstrap-Reihe -->
+                <div class="col-md-8">  <!-- Definiert eine Bootstrap-Spalte mit 8 von 12 möglichen Spaltenbreiten -->
+                  {% if messages %}  <!-- Überprüft, ob Nachrichten vorhanden sind -->
+                    {% for message in messages %}  <!-- Durchläuft alle vorhandenen Nachrichten -->
+                    <div class="alert alert-{{ message.tags }}"></div>  <!-- Erstellt eine Alert-Box mit dem entsprechenden Typ (Fehler, Erfolg, etc.) -->
+                    {{ message }}  <!-- Zeigt die eigentliche Nachricht an -->
+                    {% endfor %}
+                  {% endif %}
+                  <div class="content-section">  <!-- Beginn des Inhaltsbereichs -->
+                  {% block content %}{% endblock %}  <!-- Platzhalter für den Inhalt, der von anderen Templates eingefügt werden kann -->
+                </div>
+              </div>
+              <div class="col-md-4">  <!-- Bootstrap-Spalte, die 4 von 12 möglichen Spaltenbreiten einnimmt -->
+                <div class="content-section">  <!-- Container für den Inhalt der Spalte -->
+                  {% if user.is_authenticated %}  <!-- Überprüfung, ob der Benutzer angemeldet ist -->
+                    <h3>Start AI-Prediction</h3>  <!-- Überschrift, die nur für angemeldete Benutzer sichtbar ist -->
+                    <p class='text-muted'>  <!-- Paragraf mit stilistischen Anpassungen -->
+                      Click on the button below  <!-- Text für angemeldete Benutzer -->
+                      <a href="{% url 'personal_upload' %}" class="list-group-item list-group-item-action">Develop new model</a>  <!-- Link, der zum Hochladen persönlicher Daten führt; nur für angemeldete Benutzer sichtbar -->
+                      <a href="{% url 'process_documentation' %}" class="list-group-item list-group-item-action" >Process Documentation</a>  <!-- Link zur Prozessdokumentation; nur für angemeldete Benutzer sichtbar -->
+                    </p>
+                  {% else %}  <!-- Falls der Benutzer nicht angemeldet ist -->
+                    <h3>Basic choices</h3>  <!-- Überschrift für nicht angemeldete Benutzer -->
+                    <p class='text-muted'>  <!-- Paragraf mit stilistischen Anpassungen für nicht angemeldete Benutzer -->
+                      Choose from the options below  <!-- Text für nicht angemeldete Benutzer -->
+                      <ul class="list-group">  <!-- Ungeordnete Liste -->
+                        <li class="list-group-item list-group-item-light">Develop new model</li>  <!-- Listenelement; nur als Platzhalter, da der Benutzer nicht angemeldet ist -->
+                      </ul>
+                    </p>
+                  {% endif %}  <!-- Schließt die if-Anweisung ab -->
+                </div>  <!-- Schließt den Container für den Inhalt der Spalte -->
+              </div>  <!-- Schließt die Bootstrap-Spalte -->
+              </div>  <!-- Schließt die Bootstrap-Reihe -->
+              </main>  <!-- Schließt den Hauptinhalt der Seite -->              
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
