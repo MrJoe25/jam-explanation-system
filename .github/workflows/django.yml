@@ -27,5 +27,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Run Tests
+      working-directory: ./JAMes  # set the working directory to JAMes
       run: |
         python manage.py test
