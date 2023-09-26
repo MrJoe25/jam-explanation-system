@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./JAMes  # set the working directory for all steps
     strategy:
       max-parallel: 4
       matrix:
