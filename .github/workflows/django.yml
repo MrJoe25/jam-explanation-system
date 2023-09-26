@@ -2,18 +2,19 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - 'main'  # Triggers the workflow on push events for main branch
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - 'main'  # Triggers the workflow on pull request events for main branch
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.11.0]
+        python-version: [3.7, 3.8, 3.9, 3.10]  # Include the Python versions you want to test against
 
     steps:
     - uses: actions/checkout@v3
