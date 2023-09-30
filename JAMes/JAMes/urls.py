@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('featureselection/', include('feature_selection.urls')),
     path('', include('users.urls')),
+    path('usermanagement/', include('usermanagement.urls')),
     path('sampling_optimization_techniques/', include('sampling_optimization_techniques.urls')),
     path('process_documentation/', include('process_documentation.urls')),
     path('group_representation/', include('group_representation.urls')),

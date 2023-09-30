@@ -66,6 +66,31 @@ def segmentation(request):
     superuser = request.user.username
     current_user = request.GET.get('current_user')
     number_of_groups = request.GET.get('number_of_groups')
+
+    # Lese die CSV-Datei in einen Pandas-DataFrame
+    df = pd.read_csv(f'media/{file}')
+    # Erstelle ein describe für die Spalte 'Bilanzsumme'
+    describe = df['Bilanzsumme'].describe().map('{:.0f}'.format)
+
+    # Konvertiere die Series in einen DataFrame
+    describe_df = describe.to_frame()
+    # Konvertiere den DataFrame in HTML
+    describe_html = describe_df.to_html(classes=["table", "table-responsive", "table-bordered", "table-striped", "table-hover"], header=True, table_id='describe_table')
+
+    # Berechne die Quantile der Bilanzsumme
+    quantiles = df['Bilanzsumme'].quantile([0.25, 0.5, 0.75])
+
+    # Erstelle eine neue Spalte, die das Quantil für jede Zeile anzeigt
+    df['Quantile'] = pd.cut(df['Bilanzsumme'], bins=[0] + list(quantiles) + [float('inf')], labels=['0-25%', '25-50%', '50-75%', '75-100%'])
+
+    # Gruppieren des DataFrames nach 'Quantile' und Zählen der Anzahl der Insolvenzen
+    insolvency_distribution = df.groupby('Quantile')['Insolvenz'].sum().reset_index()
+
+    # Formatieren der Insolvenzanzahl als Ganzzahlen
+    insolvency_distribution['Insolvenz'] = insolvency_distribution['Insolvenz'].map('{:.0f}'.format)
+
+    # Konvertieren des DataFrames in HTML
+    insolvency_distribution_html = insolvency_distribution.to_html(classes=["table", "table-responsive", "table-bordered", "table-striped", "table-hover"], header=True, table_id='insolvency_distribution_table')
     
     # Erstellen einer Liste und Auswahlmöglichkeiten für die Gruppenanzahl
     int_list = list(range(1, int(number_of_groups)+1))
@@ -121,7 +146,7 @@ def segmentation(request):
         Group.objects.filter(id=group_id).delete()
     
     # Erstellen des Kontext-Dictionarys für das Template
-    dict = {'file':file, 'current_user':current_user, 'form':form, 'number_of_groups':number_of_groups, 'choices':choices,'groups':groups, 'error_message': error_message}
+    dict = {'file':file, 'current_user':current_user, 'form':form, 'number_of_groups':number_of_groups, 'choices':choices,'groups':groups, 'error_message': error_message, 'describe_html': describe_html, 'insolvency_distribution_html': insolvency_distribution_html}
     
     # Rendern des HTML-Templates mit dem Kontext-Dictionary
     return render(request, 'segmentation.html', dict)

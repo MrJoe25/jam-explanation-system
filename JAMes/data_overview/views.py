@@ -6,6 +6,10 @@ import csv, io
 from tablib import Dataset
 import pandas as pd
 from django.views.decorators.cache import cache_page
+from django.http import HttpResponseRedirect
+from django.contrib import messages
+from django.urls import reverse
+import os
 
 # Daten-Übersichts-Ansicht
 def data_overview(request):
@@ -55,6 +59,32 @@ def results_csv(request):
     table_id='df_unique_table')
     df_null_html = df_null.to_html(classes=["table", "table-striped", "table-bordered", "table-hover"], header=None,
     table_id='df_null_table')
+    # Zähle die Anzahl der Insolvenzen
+    count_insolvencies = df[df['Insolvenz'] == 1].shape[0]
+    # Überprüfe, ob mindestens 2 Insolvenzen vorhanden sind
+    if count_insolvencies < 2:
+        # Füge eine Warnmeldung hinzu
+        messages.warning(request, 'The dataset must contain at least 2 bankruptcies.')
+
+        # Versuche, den Datensatz aus der SQL Datenbank zu löschen
+        try:
+            data_to_delete = CSVFile.objects.get(file=file, user=current_user)
+            data_to_delete.delete()
+        except Exception as e:
+            messages.warning(request, f'An error occurred while deleting the database record: {e}')
+            # Wenn das Löschen des Datenbankeintrags fehlschlägt, leiten Sie den Benutzer um und brechen Sie ab
+            return HttpResponseRedirect(reverse('personal_upload'))
+
+        # Versuche, die Datei im Ordner zu löschen
+        try:
+            os.remove(f'media/{file}')
+        except Exception as e:
+            messages.warning(request, f'An error occurred while deleting the file: {e}')
+            # Wenn das Löschen der Datei fehlschlägt, ist das weniger kritisch, da der Datenbankeintrag bereits entfernt wurde
+
+        # Leite den Benutzer zur 'personal_upload' Seite weiter
+        return HttpResponseRedirect(reverse('personal_upload'))
+
     # Fasse alle Daten für das Rendern zusammen
     file_data = {'file':file,'data':df_head_html,'stat':stat_html,'current_user':current_user,
     'id':data,'insolvenz':insolvenz_info_df_html,'unique':df_unique_html,'null':df_null_html}
