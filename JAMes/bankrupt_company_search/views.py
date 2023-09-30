@@ -75,7 +75,7 @@ def search_company(request):
 
     # Implementierung der Pagination
     page = request.GET.get('page', 1)
-    paginator = Paginator(data_rows, 100)  # Anzeige von 100 Zeilen pro Seite
+    paginator = Paginator(data_rows, 10)  # Anzeige von 10 Zeilen pro Seite
     try:
         data_rows = paginator.page(page)
     except PageNotAnInteger:
@@ -203,10 +203,9 @@ def filter_bankrupt(request):
     model_predictions = combined_test_data.to_dict('records')
 
     # Filtern der Zeilen nach tatsächlichem Insolvenzstatus
-    data_rows = [row for row in model_predictions if row['Insolvenz(t0)'] == 1]
+    filtered_rows = [row for row in model_predictions if row['Insolvenz(t0)'] == 1]
 
-    # Rückgabe der gefilterten Zeilen als JSON-Antwort
-    return JsonResponse({'rows': data_rows})
+    return JsonResponse({'rows': list(filtered_rows)})
 
 
 def filter_predicted_bankrupt(request):
@@ -243,13 +242,9 @@ def filter_predicted_bankrupt(request):
         all_test_data.append(test_data)
 
     combined_test_data = pd.concat(all_test_data, ignore_index=True)
-    data_rows = combined_test_data.to_dict('records')
+    data_rows = combined_test_data.to_dict('records') 
 
-    # Filtern der Zeilen nach vorhergesagtem Insolvenzstatus
-    data_rows = [row for row in data_rows if row['Prediction'] == 1]
-
-    # Rückgabe der gefilterten Zeilen als JSON-Antwort
-    return JsonResponse({'rows': data_rows})
+    return JsonResponse({'rows': list(data_rows)})
 
 
 def filter_bankrupt_and_predicted(request):
@@ -295,8 +290,7 @@ def filter_bankrupt_and_predicted(request):
     # Filtere die Datenzeilen nach tatsächlichem Insolvenzstatus und vorhergesagtem Insolvenzstatus
     data_rows = [row for row in data_rows if row['Insolvenz(t0)'] == 1 and row['Prediction'] == 1]
 
-    # Gebe die gefilterten Daten als JSON zurück
-    return JsonResponse({'rows': data_rows})
+    return JsonResponse({'rows': list(data_rows)})
 
 
 def save_predictions_to_csv(request): 

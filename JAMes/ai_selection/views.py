@@ -267,6 +267,20 @@ def train_test_val_split(file, split_ratio):
     # Teile Daten in Trainings- und Testdaten
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio, stratify=y)
 
+    # Zähle Klassen der Zielvariablen
+    y_train_count = y_train.value_counts()
+    y_test_count = y_test.value_counts()
+
+    # Prüfe ob genügend Insolvenzen in Trainingsdaten
+    if y_train_count[1] < 6:
+        error_message = "Error: The train set has less than 6 bankruptcies. More data should be added to the data set. You could also try a different split or use Bayesian Optimization."
+        return None, None, None, None, error_message
+
+    # Prüfe ob genügend Insolvenzen in Testdaten
+    if y_test_count[1] < 1:
+        error_message = "Error: The test set has less than 1 bankruptcy. More data should be added to the data set. You could also try a different split or use Bayesian Optimization."
+        return None, None, None, None, error_message
+
     # Speichere Firmen IDs der Testdaten   
     X_test_company_id = X_test['Company_ID']
 
@@ -405,7 +419,12 @@ def get_train_test_val_split(file, split_ratio, sampling_method):
 
     # Prüfe ob genügend Insolvenzen in Trainingsdaten
     if y_train_count[1] < 6:
-        error_message = "Error: The training set has less than 6 bankruptcies. More data should be added to the data set. You could also try a different split or use Bayesian Optimization."
+        error_message = "Error: The train set has less than 6 bankruptcies. More data should be added to the data set. You could also try a different split or use Bayesian Optimization."
+        return None, None, None, None, error_message
+
+    # Prüfe ob genügend Insolvenzen in Testdaten
+    if y_test_count[1] < 1:
+        error_message = "Error: The test set has less than 1 bankruptcy. More data should be added to the data set. You could also try a different split or use Bayesian Optimization."
         return None, None, None, None, error_message
 
     # Wende Samplingmethode auf Trainingsdaten an

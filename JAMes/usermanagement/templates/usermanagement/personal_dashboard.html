@@ -1,3 +1,8 @@
+<!-- For Bootstrap 4 -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
 {% extends "users/navbar.html" %}  <!-- Erweitert das Navbar-Template "users/navbar.html". -->
 {% block content %}  <!-- Beginnt einen Block namens "content", der im Navbar-Template definiert sein sollte. Dieser Block wird durch den folgenden HTML-Code ersetzt. -->
 
@@ -14,6 +19,7 @@
                 <th>User</th>  <!-- Tabellenkopf für User. -->
                 <th>Uploaded at</th>  <!-- Tabellenkopf für Upload-Zeit. -->
                 <th>File</th>  <!-- Tabellenkopf für Datei. -->
+                <th>Delete</th>  <!-- Tabellenkopf für Löschen. -->
             </tr>  <!-- Beendet die Tabellenzeile. -->
         </thead>  <!-- Beendet den Tabellenkopf. -->
 
@@ -24,6 +30,7 @@
                 <td>{{csvfile.user}}</td>  <!-- Zeigt den Benutzer für die aktuelle CSV-Datei an. -->
                 <td>{{csvfile.uploaded_at}}</td>  <!-- Zeigt das Upload-Datum für die aktuelle CSV-Datei an. -->
                 <td><a href="{% url 'results_csv'%}?file={{csvfile.file}}&current_user={{csvfile.user}}" class="btn btn-outline-primary">{{csvfile.file}}</a></td>  <!-- Erstellt einen Link, der zur Seite "results_csv" führt und übergibt Parameter wie den Dateinamen und den aktuellen Benutzer. -->
+                <td><a href="{% url 'usermanagement:delete_csv' csvfile.id %}" class="btn btn-danger">Delete</a></td>  <!-- Erstellt einen Link, der zur Seite "delete_csv" führt und übergibt die ID der aktuellen CSV-Datei. -->
             </tr>  <!-- Beendet die Tabellenzeile. -->
     {% endfor %}  <!-- Beendet die For-Schleife. -->
         </tbody>  <!-- Beendet den Tabellenkörper. -->
@@ -41,6 +48,7 @@
                 <th>User</th>  <!-- Tabellenkopf für User. -->
                 <th>Uploaded at</th>  <!-- Tabellenkopf für Upload-Zeit. -->
                 <th>File</th>  <!-- Tabellenkopf für Datei. -->
+                <th>Delete</th>  <!-- Tabellenkopf für Löschen. -->
             </tr>  <!-- Beendet die Tabellenzeile. -->
         </thead>  <!-- Beendet den Tabellenkopf. -->
 
@@ -51,9 +59,34 @@
                 <td>{{model.user}}</td>  <!-- Zeigt den Benutzer für das aktuelle Modell an. -->
                 <td>{{model.uploaded_at}}</td>  <!-- Zeigt das Upload-Datum für das aktuelle Modell an. -->
                 <td><a href="{% url 'xgexplain'%}?file={{model.file_name}}&current_user={{model.user}}&number_of_groups={{model.number_of_groups}}&ai_method={{model.ai_method}}" class="btn btn-outline-primary">{{model.model_file}}</a></td>  <!-- Erstellt einen Link, der zur Seite "xgexplain" führt und übergibt Parameter wie den Dateinamen, den aktuellen Benutzer, die Anzahl der Gruppen und die KI-Methode. -->
+                <td><a href="{% url 'usermanagement:delete_model' model.id %}" class="btn btn-danger">Delete</a></td> <!-- Erstellt einen Link, der zur Seite "delete_model" führt und übergibt die ID des aktuellen Modells. -->
             </tr>  <!-- Beendet die Tabellenzeile. -->
     {% endfor %}  <!-- Beendet die For-Schleife. -->
         </tbody>  <!-- Beendet den Tabellenkörper. -->
     </table>  <!-- Beendet die Tabelle. -->
 </div>  <!-- Beendet den Div-Container. -->
+<br>  <br />  <!-- Zwei Zeilenumbrüche für Abstand. -->
+<!-- Clear All Button -->
+<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#clearAllModal">Clear All</button>
+
+<!-- Warning Modal -->
+<div class="modal fade" id="clearAllModal" tabindex="-1" role="dialog" aria-labelledby="clearAllModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="clearAllModalLabel">Warning</h5>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete all files?
+      </div>
+      <div class="modal-footer">
+        <!-- Button to Open the Modal -->
+        <a href="{% url 'usermanagement:clear_all' %}" class="btn btn-danger">Clear All</a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}  <!-- Beendet den "content" Block, der im Navbar-Template begonnen hat. -->
+
+
+
