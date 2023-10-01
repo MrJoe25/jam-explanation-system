@@ -31,6 +31,15 @@ from ai_selection.models import *
 # Importieren der Cache-Dekoratoren von Django
 from django.views.decorators.cache import cache_page
 
+import os
+
+from ai_selection.models import FinalData, XGModel
+from ai_explainability.models import Report
+from group_representation.models import GroupSplit
+from group_preprocessing.models import Group
+from feature_selection.models import Cleaned_File, Featureselection, Feature_Table
+from usermanagement.models import CSVFile
+
 # Ansichtsfunktion für das persönliche Dashboard, erfordert eine Anmeldung
 @login_required
 def personal_dashboard(request):
@@ -70,3 +79,52 @@ def personal_upload(request):
     
     # Rendern des Upload-Templates für GET-Anfragen
     return render(request, template)
+
+@login_required
+def delete_csv(request, id):
+    try:
+        csv_file = CSVFile.objects.get(id=id)
+        os.remove(f'media/{csv_file.file}')
+        csv_file.delete()
+    except Exception as e:
+        messages.warning(request, f'An error occurred while deleting the CSV file: {e}')
+    return redirect('personal_dashboard')
+
+"""
+@login_required
+def delete_model(request, id):
+    try:
+        model = XGModel.objects.get(id=id)
+        file_path = f'media/xg_model/{model.file_name}.pkl'
+        os.remove(file_path)
+        model.delete()
+    except Exception as e:
+        messages.warning(request, f'An error occurred while deleting the model: {e}')
+    return redirect('personal_dashboard')
+
+@login_required
+def clear_all(request):
+    try:
+        # Delete all files in media folder and its subfolders
+        for root, dirs, files in os.walk('media/'):
+            for file in files:
+                os.remove(os.path.join(root, file))
+        
+        # Delete all records from your models
+        FinalData.objects.all().delete()
+        XGModel.objects.all().delete()
+        Report.objects.all().delete()
+        GroupSplit.objects.all().delete()
+        Group.objects.all().delete()
+        Cleaned_File.objects.all().delete()
+        Featureselection.objects.all().delete()
+        Feature_Table.objects.all().delete()
+        CSVFile.objects.all().delete()
+
+        messages.success(request, 'All files and records have been deleted.')
+
+    except Exception as e:
+        messages.warning(request, f'An error occurred: {e}')
+
+    return redirect('personal_dashboard')
+"""

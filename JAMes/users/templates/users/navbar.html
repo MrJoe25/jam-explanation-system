@@ -44,15 +44,17 @@
       <div class="row">  <!-- Zeile in Bootstrap, in der Spalten positioniert werden können -->
           <div class="col-md-12">  <!-- Bootstrap-Spalte, die 12 Spalten des Rasters einnimmt -->
   
-              {% if messages %}  <!-- Überprüfung, ob Nachrichten vorhanden sind (z.B. Flash-Nachrichten in Django) -->
-                  {% for message in messages %}  <!-- Schleife durch alle Nachrichten -->
-                  <div class="alert alert-{{ message.tags }}"></div>  <!-- Anzeigen einer Benachrichtigungsbox mit den Tags der Nachricht (z.B. 'success', 'error') -->
-                  {{ message }}  <!-- Anzeige der eigentlichen Nachricht -->
-                  {% endfor %}
-              {% endif %}
+            {% if messages %}  <!-- Überprüfung, ob Nachrichten vorhanden sind (z.B. Flash-Nachrichten in Django) -->
+              {% for message in messages %}  <!-- Schleife durch alle Nachrichten -->
+              <div class="alert alert-{{ message.tags }}">  <!-- Anzeigen einer Benachrichtigungsbox mit den Tags der Nachricht (z.B. 'success', 'error') -->
+                {{ message }}  <!-- Anzeige der eigentlichen Nachricht -->
+              </div>
+              {% endfor %}
+            {% endif %}
+        
   
-              {% block content %}{% endblock %}  <!-- Ein Block, der in abgeleiteten Templates überschrieben werden kann -->
-              {% block scripts %}{% endblock %}  <!-- Ein weiterer Block für Skripte, der ebenfalls überschrieben werden kann -->
+            {% block content %}{% endblock %}  <!-- Ein Block, der in abgeleiteten Templates überschrieben werden kann -->
+            {% block scripts %}{% endblock %}  <!-- Ein weiterer Block für Skripte, der ebenfalls überschrieben werden kann -->
   
           </div>
       </div>

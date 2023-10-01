@@ -32,7 +32,7 @@ virtualenv venv
 ### 4. Projekt verwenden
 - **Option 1: Klonen Sie das Projekt-Repository in das aktuelle Verzeichnis.**
   ```
-  git clone https://gitlab.gwdg.de/ai-insolencyforecasting-dashboard/projektstudium/jam-explanation-system.git
+  git clone https://github.com/MrJoe25/jam-explanation-system.git
   ```
 - **Option 2: Wenn Sie sich im selben Ordner wie `installation.txt` befinden, ist das Projektverzeichnis bereits vorhanden und kann direkt verwendet werden.**
 

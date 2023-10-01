@@ -13,7 +13,7 @@ from django.views.decorators.cache import cache_page
 from django.http import HttpResponse
 import csv
 
-@cache_page(15 * 60)  # Cachen der View für 15 min
+#@cache_page(15 * 60)  # Cachen der View für 15 min
 def search_company(request):
     # Initialisieren einer Fehlermeldung als None (wird später gesetzt, falls ein Fehler auftritt)
     error_message = None

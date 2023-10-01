@@ -8,6 +8,9 @@ import pandas as pd
 from .functions import *
 from django.core.files.base import ContentFile
 from django.views.decorators.cache import cache_page
+from django.contrib import messages
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 # Definiere die "splitting"-Funktion
 def splitting(request):
@@ -40,16 +43,48 @@ def group_representation(request):
     # Hole die letzten "number_of_groups" Gruppenaufteilungen für die Datei "file"
     recent_group_splits = GroupSplit.objects.filter(file_name=file).order_by('-uploaded_at')[:number_of_groups]
 
+    # Lese die CSV-Datei in einen Pandas-DataFrame
+    df = pd.read_csv(f'media/{file}')
+
+    # Durchlaufe alle Gruppen und erstelle für jede Gruppe einen DataFrame
+    for group in groups:
+        # Filtere den DataFrame auf der Grundlage der Grenzwerte der Gruppe
+        df_group = df[(df['Bilanzsumme'] >= group.lower_bound) & (df['Bilanzsumme'] < group.upper_bound)]
+
+        # Zähle die Anzahl der Insolvenzen
+        count_insolvencies = df_group[df_group['Insolvenz'] == 1].shape[0]
+        
+        # Überprüfe, ob mindestens 2 Insolvenzen vorhanden sind
+        if count_insolvencies < 2:
+            messages.warning(request, 'The groups must contain at least 2 bankruptcies each.')
+            # Erstelle einen Query-String mit den erforderlichen Parametern
+            query_params = f"file={file}&current_user={current_user}&number_of_groups={number_of_groups}"
+            # Füge den Query-String zur umgeleiteten URL hinzu
+            redirect_url = f"{reverse('group_processing')}?{query_params}"
+            return HttpResponseRedirect(redirect_url)
+
+
     # Überprüfe, ob bereits Gruppenaufteilungen vorhanden sind
     if not recent_group_splits:
-        # Lese die CSV-Datei in einen Pandas-DataFrame
-        df = pd.read_csv(f'media/{file}')
+
         # Initialisiere eine leere Liste für die DataFrames der Gruppen
         dataframes = []
         # Durchlaufe alle Gruppen und erstelle für jede Gruppe einen DataFrame
         for group in groups:
             # Filtere den DataFrame auf der Grundlage der Grenzwerte der Gruppe
             df_group = df[(df['Bilanzsumme'] >= group.lower_bound) & (df['Bilanzsumme'] < group.upper_bound)]
+
+            # Zähle die Anzahl der Insolvenzen
+            count_insolvencies = df_group[df_group['Insolvenz'] == 1].shape[0]
+            # Überprüfe, ob mindestens 2 Insolvenzen vorhanden sind
+            if count_insolvencies < 2:
+                messages.warning(request, 'The groups must contain at least 2 bankruptcies each.')
+                # Erstelle einen Query-String mit den erforderlichen Parametern
+                query_params = f"file={file}&current_user={current_user}&number_of_groups={number_of_groups}"
+                # Füge den Query-String zur umgeleiteten URL hinzu
+                redirect_url = f"{reverse('group_processing')}?{query_params}"
+                return HttpResponseRedirect(redirect_url)
+
             # Entferne die Spalte "Bilanzsumme"
             df_group = df_group.drop(['Bilanzsumme'], axis=1)
             # Setze den Namen der Gruppe für den DataFrame

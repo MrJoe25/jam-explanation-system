@@ -10,6 +10,9 @@ import pandas as pd
 from .cleaning import cleaning  # Importieren einer Reinigungsfunktion für Daten
 from .functions import feature_calc
 from django.views.decorators.cache import cache_page
+from django.contrib import messages
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 # Definition der "datacleaning" Funktion, die die Datenreinigungsseite rendert
 def datacleaning(request):
@@ -27,7 +30,36 @@ def cleaned_data(request):
     
     # Daten aus der angegebenen Datei lesen und reinigen
     df = pd.read_csv(f'media/' + file)
-    df = cleaning(df)
+
+    try:
+        df = cleaning(df)  # Reinigungsfunktion aufrufen
+    except MemoryError:
+        messages.warning(request, 'Out of memory. The dataset is too large to process.') # Warnung ausgeben
+        return HttpResponseRedirect(reverse('personal_upload'))  # Redirect to 'personal_upload' view
+
+    # Count the number of insolvencies
+    count_insolvencies = df[df['Insolvenz'] == 1].shape[0]
+    # Check if at least 2 insolvencies are present
+    if count_insolvencies < 2:
+        # Add a warning message
+        messages.warning(request, 'The dataset must contain at least 2 bankruptcies.')
+        
+        # Try to delete the dataset from the SQL database
+        try:
+            data_to_delete = CSVFile.objects.get(file=file, user=current_user)
+            data_to_delete.delete()
+        except Exception as e:
+            messages.warning(request, f'An error occurred while deleting the database record: {e}')
+            return HttpResponseRedirect(reverse('personal_upload'))
+
+        # Try to delete the file from the folder
+        try:
+            os.remove(f'media/{file}')
+        except Exception as e:
+            messages.warning(request, f'An error occurred while deleting the file: {e}')
+
+        # Redirect the user to 'personal_upload' page
+        return HttpResponseRedirect(reverse('personal_upload'))
     
     # Erhalte verschiedene statistische Daten aus dem DataFrame
     insolvenz_info = df['Insolvenz'].value_counts()
@@ -140,6 +172,17 @@ def featurestat(request):
     # Einlesen der Datei mit Pandas
     df = pd.read_csv(f'media/'+file)
     
+    # Count the number of insolvencies
+    count_insolvencies = df[df['Insolvenz'] == 1].shape[0]
+    # Check if at least 2 insolvencies are present
+    if count_insolvencies < 2:
+        messages.warning(request, 'The dataset must contain at least 2 bankruptcies.')
+        # Erstelle einen Query-String mit den erforderlichen Parametern
+        query_params = f"file={file}&current_user={current_user}"
+        # Füge den Query-String zur umgeleiteten URL hinzu
+        redirect_url = f"{reverse('featureselection')}?{query_params}"
+        return HttpResponseRedirect(redirect_url)  # Redirect to 'featureselection' view
+
     # Statistische Informationen aus dem DataFrame holen
     insolvenz_info = df['Insolvenz'].value_counts()
     unique = df[['Company_ID','Jahr','Insolvenz']].nunique()
