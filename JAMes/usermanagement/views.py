@@ -40,6 +40,8 @@ from group_preprocessing.models import Group
 from feature_selection.models import Cleaned_File, Featureselection, Feature_Table
 from usermanagement.models import CSVFile
 
+import logging
+
 # Ansichtsfunktion für das persönliche Dashboard, erfordert eine Anmeldung
 @login_required
 def personal_dashboard(request):
@@ -84,7 +86,9 @@ def personal_upload(request):
 def delete_csv(request, id):
     try:
         csv_file = CSVFile.objects.get(id=id)
-        os.remove(f'media/{csv_file.file}')
+        file_path = f'media/{csv_file.file}'
+        if os.path.exists(file_path):
+            os.remove(file_path)
         csv_file.delete()
     except Exception as e:
         messages.warning(request, f'An error occurred while deleting the CSV file: {e}')
@@ -95,19 +99,48 @@ def delete_model(request, id):
     try:
         model = XGModel.objects.get(id=id)
         file_path = f'media/xg_model/{model.file_name}.pkl'
-        os.remove(file_path)
+        
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        else:
+            messages.warning(request, 'The specified model file does not exist.')
+            
         model.delete()
+        messages.success(request, 'Model and corresponding file have been deleted.')
+        
     except Exception as e:
         messages.warning(request, f'An error occurred while deleting the model: {e}')
+        
     return redirect('personal_dashboard')
 
 @login_required
 def clear_all(request):
+    logger = logging.getLogger(__name__)
     try:
-        # Delete all files in media folder and its subfolders
+        # List to keep track of opened file handles
+        file_handles = []
+        
+        # Open and close all files in the media folder and its subfolders
         for root, dirs, files in os.walk('media/'):
             for file in files:
-                os.remove(os.path.join(root, file))
+                file_path = os.path.join(root, file)
+                if os.path.exists(file_path):
+                    try:
+                        with open(file_path, 'r') as f:
+                            file_handles.append(f)
+                    except Exception as e:
+                        messages.warning(request, f'An error occurred while handling {file_path}: {e}')
+                        
+        # Close all opened file handles
+        for f in file_handles:
+            f.close()
+            
+        # Delete all files in the media folder and its subfolders
+        for root, dirs, files in os.walk('media/'):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
         
         # Delete all records from your models
         FinalData.objects.all().delete()
@@ -121,8 +154,8 @@ def clear_all(request):
         CSVFile.objects.all().delete()
 
         messages.success(request, 'All files and records have been deleted.')
-
+        
     except Exception as e:
         messages.warning(request, f'An error occurred: {e}')
-
+        
     return redirect('personal_dashboard')
