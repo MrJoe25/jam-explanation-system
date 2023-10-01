@@ -22,7 +22,7 @@ def datacleaning(request):
     return render(request, 'datacleaning.html', cleaning_dict)  # Rendern der Datenreinigungsseite mit dem Dictionary
 
 # Definition der "cleaned_data" Funktion, die gereinigte Daten zurückgibt
-@cache_page(15 * 60)  # Die Daten werden für 15 Minuten gecached
+#@cache_page(15 * 60)  # Die Daten werden für 15 Minuten gecached
 def cleaned_data(request):
     file = request.GET.get('file')
     superuser = request.user.username  # Superuser aus dem aktuellen Benutzerobjekt holen

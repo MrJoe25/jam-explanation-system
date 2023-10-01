@@ -448,7 +448,7 @@ def get_train_test_val_split(file, split_ratio, sampling_method):
         X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, test_size=val_ratio, stratify=y_test)
         return pd.concat([X_train, y_train], axis=1), pd.concat([X_test, y_test], axis=1), pd.concat([X_val, y_val], axis=1), X_test_company_id, None
 
-@cache_page(15 * 60) # Für 15 Minuten cachen
+#@cache_page(15 * 60) # Für 15 Minuten cachen
 # Funktion für Gruppenstatistiken
 def group_stats(request):  # Django View-Funktion, die einen HTTP-Request als Argument nimmt.
     # Abfrage von GET-Parametern und Metadaten

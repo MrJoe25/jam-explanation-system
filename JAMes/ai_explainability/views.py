@@ -77,7 +77,8 @@ def get_confusion_matrix(test_y_df, y_pred, group_name, labels=('Solvent', 'Bank
 
 def get_model_details(model_file_path): # Funktion für Modellmetadaten
     # Load the saved model
-    model = pickle.load(open(model_file_path, 'rb')) 
+    with open(model_file_path, 'rb') as f:
+        model = pickle.load(f)
 
     # Get the number of boosting rounds
     try:
@@ -99,7 +100,8 @@ def get_model_details(model_file_path): # Funktion für Modellmetadaten
 
 
 
-@cache_page(15 * 60) # Cache die Seite für 15 min
+
+#@cache_page(15 * 60) # Cache die Seite für 15 min
 def xgexplain(request):
     file = request.GET.get('file') 
     superuser = request.user.username
