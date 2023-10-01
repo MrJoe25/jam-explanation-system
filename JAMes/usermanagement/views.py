@@ -90,6 +90,7 @@ def delete_csv(request, id):
         messages.warning(request, f'An error occurred while deleting the CSV file: {e}')
     return redirect('personal_dashboard')
 
+"""
 @login_required
 def delete_model(request, id):
     try:
@@ -126,3 +127,4 @@ def clear_all(request):
         messages.warning(request, f'An error occurred: {e}')
 
     return redirect('personal_dashboard')
+"""

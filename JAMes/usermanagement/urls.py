@@ -8,6 +8,6 @@ urlpatterns = [  # Eine Liste von URL-Mustern, die dieser App zugeordnet sind
     # Ein URL-Muster, das die URL 'personal_dashboard' mit der View-Funktion 'personal_dashboard' in 'views' verbindet.
     # Der Name 'personal_dashboard' wird als Referenz für diese spezielle URL verwendet.
     path('delete_csv/<int:id>/', views.delete_csv, name='delete_csv'),
-    path('delete_model/<int:id>/', views.delete_model, name='delete_model'),
-    path('clear_all/', views.clear_all, name='clear_all'),
+    #path('delete_model/<int:id>/', views.delete_model, name='delete_model'),
+    #path('clear_all/', views.clear_all, name='clear_all'),
 ]
