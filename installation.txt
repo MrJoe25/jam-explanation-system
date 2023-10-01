@@ -2,7 +2,11 @@
 
 ## Voraussetzungen
 - Python 3.x sollte installiert sein (>3.7 und <3.11)
-- pip (Python-Paketmanager) sollte installiert sein
+https://www.python.org/downloads/
+- pip (Python-Paketmanager) sollte installiert sein (Ist in der Regel mit python installiert)
+https://pip.pypa.io/en/stable/installation/
+- Wenn Sie Git zum Klonen des Repositorys verwenden möchten, müssen Sie Git installieren.
+https://git-scm.com/downloads
 
 ## Schritte
 
