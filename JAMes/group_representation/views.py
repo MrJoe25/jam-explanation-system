@@ -28,7 +28,7 @@ def splitting(request):
     return render(request, 'splitting.html', dict)
 
 # Dekoriere die "group_representation"-Funktion mit einem Cache von 15 Minuten
-@cache_page(15 * 60)
+#@cache_page(15 * 60)
 def group_representation(request):
     # Hole den Wert des 'file'-Parameters aus der GET-Anfrage
     file = request.GET.get('file')
@@ -38,6 +38,8 @@ def group_representation(request):
     current_user = request.GET.get('current_user')
     # Hole den Wert des 'number_of_groups'-Parameters aus der GET-Anfrage und konvertiere ihn zu einem Integer
     number_of_groups = int(request.GET.get('number_of_groups'))
+    # Lösche alte Gruppenaufteilungen und erstelle neue basierend auf aktuellen Einstellungen
+    GroupSplit.objects.filter(file_name=file).delete()
     # Hole alle Gruppenobjekte, die der Datei "file" zugeordnet sind
     groups = Group.objects.filter(file_name=file)
     # Hole die letzten "number_of_groups" Gruppenaufteilungen für die Datei "file"
